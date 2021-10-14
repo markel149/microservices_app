@@ -1,0 +1,36 @@
+version: '3.1'
+services:
+  order:
+    build: order
+    volumes:
+      - ./order/order:/app
+    ports:
+      - 8000:8000/tcp
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_ORDER}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  client:
+    build: client
+    volumes:
+      - ./client/client:/app
+    ports:
+      - 8001:8000/tcp
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_CLIENT}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  payment:
+    build: payment
+    volumes:
+      - ./payment/payment:/app
+    ports:
+      - 8002:8000/tcp
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_PAYMENT}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+
