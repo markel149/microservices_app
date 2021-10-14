@@ -38,8 +38,8 @@ services:
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
     ports:
-      - 8080:8080
-      - 8081:8081
+      - '${HA_PROXY_PORT}:${HA_PROXY_PORT}'
+      - '${HA_PROXY_STATS_PORT}:${HA_PROXY_STATS_PORT}'
     environment:
       HA_PROXY_STATS_PORT: '${HA_PROXY_STATS_PORT}'
       HA_PROXY_PORT: '${HA_PROXY_PORT}'
