@@ -33,4 +33,14 @@ services:
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_PAYMENT}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
-
+  haproxy:
+    image: haproxy:latest
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - 8080:8080
+      - 8081:8081
+    environment:
+      HA_PROXY_STATS_PORT: '${HA_PROXY_STATS_PORT}'
+      HA_PROXY_PORT: '${HA_PROXY_PORT}'
+      
