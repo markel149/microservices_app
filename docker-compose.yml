@@ -1,6 +1,7 @@
 version: '3.1'
 services:
   order:
+    container_name: order
     build: ./order
     volumes:
       - ./order/order:/app
@@ -12,6 +13,7 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
   client:
+    container_name: client
     build: ./client
     volumes:
       - ./client/client:/app
@@ -23,6 +25,7 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
   payment:
+    container_name: payment
     build: ./payment
     volumes:
       - ./payment/payment:/app
@@ -34,6 +37,7 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
   haproxy:
+    container_name: haproxy
     image: haproxy:latest
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
@@ -45,6 +49,7 @@ services:
       HA_PROXY_PORT: '${HA_PROXY_PORT}'
     restart: on-failure
   machine:
+    container_name: machine
     build: ./machine
     volumes: 
       - ./machine/machine:/app
@@ -56,6 +61,7 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
   delivery:
+    container_name: delivery
     build: ./delivery
     volumes: 
       - ./delivery/delivery:/app
@@ -66,3 +72,11 @@ services:
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_DELIVERY}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - 15691:15691
+      - 15672:15672
+      - 5672:5672
+
