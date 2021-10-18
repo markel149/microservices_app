@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   order:
-    build: order
+    build: ./order
     volumes:
       - ./order/order:/app
     ports:
@@ -12,7 +12,7 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
   client:
-    build: client
+    build: ./client
     volumes:
       - ./client/client:/app
     ports:
@@ -23,7 +23,7 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
   payment:
-    build: payment
+    build: ./payment
     volumes:
       - ./payment/payment:/app
     ports:
@@ -43,4 +43,26 @@ services:
     environment:
       HA_PROXY_STATS_PORT: '${HA_PROXY_STATS_PORT}'
       HA_PROXY_PORT: '${HA_PROXY_PORT}'
-      
+    restart: on-failure
+  machine:
+    build: ./machine
+    volumes: 
+      - ./machine/machine:/app
+    ports:
+      - 8003:8000
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_MACHINE}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
+  delivery:
+    build: ./delivery
+    volumes: 
+      - ./delivery/delivery:/app
+    ports:
+      - 8004:8000
+    environment:
+      GUNICORN_PORT: '${GUNICORN_PORT}'
+      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_DELIVERY}'
+      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+    restart: on-failure
