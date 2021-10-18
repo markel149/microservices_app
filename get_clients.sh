@@ -1,3 +1,3 @@
 #!/bin/bash
 
-curl localhost:8001/client | jq
+curl localhost:8001/clients | jq
