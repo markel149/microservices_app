@@ -1,4 +1,6 @@
 version: '3.1'
+# Los puertos se pueden dejar de publicar si tenemos el haproxy, porque se ven todos desde la misma red del compos
+# Solo hay que dejar los puertos expuestos en haproxy
 services:
   order:
     container_name: order
