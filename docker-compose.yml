@@ -7,8 +7,8 @@ services:
     build: ./order
     volumes:
       - ./order/order:/app
-    ports:
-      - 8000:8000/tcp
+#    ports:
+#      - 8000:8000/tcp
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_ORDER}'
@@ -19,8 +19,8 @@ services:
     build: ./client
     volumes:
       - ./client/client:/app
-    ports:
-      - 8001:8000/tcp
+#    ports:
+#      - 8001:8000/tcp
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_CLIENT}'
@@ -31,8 +31,8 @@ services:
     build: ./payment
     volumes:
       - ./payment/payment:/app
-    ports:
-      - 8002:8000/tcp
+#    ports:
+#      - 8002:8000/tcp
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_PAYMENT}'
@@ -55,8 +55,8 @@ services:
     build: ./machine
     volumes: 
       - ./machine/machine:/app
-    ports:
-      - 8003:8000
+#    ports:
+#      - 8003:8000
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_MACHINE}'
@@ -67,8 +67,8 @@ services:
     build: ./delivery
     volumes: 
       - ./delivery/delivery:/app
-    ports:
-      - 8004:8000
+#    ports:
+#      - 8004:8000
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_DELIVERY}'

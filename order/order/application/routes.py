@@ -4,8 +4,12 @@ from .models import Order
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
+import json
+from application.messaging_producer import send_message
+
 
 # Order Routes #########################################################################################################
+
 @app.route('/order', methods=['POST'])
 def create_order():
     session = Session()
@@ -15,17 +19,18 @@ def create_order():
     content = request.json
     try:
         new_order = Order(
+            client_id=content['client_id'],
             description=content['description'],
-            number_of_pieces=content['number_of_pieces'],
-            status=Order.STATUS_CREATED
+            number_of_pieces=content['number_of_pieces']
         )
         session.add(new_order)
-        for i in range(new_order.number_of_pieces):
-            piece = Piece()
-            piece.order = new_order
-            session.add(piece)
         session.commit()
-        my_machine.add_pieces_to_queue(new_order.pieces)
+        message_body = {
+            'order_id': new_order.order_id,
+            'client_id': new_order.client_id,
+            'number_of_pieces': new_order.number_of_pieces
+        }
+        send_message(exchange_name='event_exchange', routing_key='order.order_created', message=json.dumps(message_body))
         session.commit()
     except KeyError:
         session.rollback()
@@ -67,7 +72,6 @@ def delete_order(order_id):
         session.close()
         abort(NotFound.code)
     print("DELETE Order {}.".format(order_id))
-    my_machine.remove_pieces_from_queue(order.pieces)
     session.delete(order)
     session.commit()
     response = jsonify(order.as_dict())

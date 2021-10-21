@@ -28,24 +28,6 @@ class BaseModel(Base):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-class Order(BaseModel):
-    STATUS_CREATED = "Created"
-    STATUS_FINISHED = "Finished"
-
-    __tablename__ = "manufacturing_order"
-    id = Column(Integer, primary_key=True)
-    number_of_pieces = Column(Integer, nullable=False)
-    description = Column(TEXT, nullable=False, default="No description")
-    status = Column(String(256), nullable=False, default="Created")
-
-    pieces = relationship("Piece", lazy="joined")
-
-    def as_dict(self):
-        d = super().as_dict()
-        d['pieces'] = [i.as_dict() for i in self.pieces]
-        return d
-
-
 class Piece(BaseModel):
     STATUS_CREATED = "Created"
     STATUS_CANCELLED = "Cancelled"
@@ -59,3 +41,4 @@ class Piece(BaseModel):
     status = Column(String(256), default=STATUS_QUEUED)
     order_id = Column(Integer, ForeignKey('manufacturing_order.id'))
     order = relationship('Order', backref='piece')
+

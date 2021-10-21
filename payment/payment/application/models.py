@@ -1,4 +1,5 @@
 from sqlalchemy import Column, DateTime, Integer, String, TEXT, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -27,9 +28,10 @@ class BaseModel(Base):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
-class Payment(BaseModel):
+class Deposit(BaseModel):
 
-    __tablename__ = "payment"
-    id = Column(Integer, primary_key=True)
-    payment = Column(Integer, nullable=False)
-    id_client = Column(Integer, nullable=False)
+    __tablename__ = "deposit"
+    deposit_id = Column(Integer, primary_key=True)
+    client_id = Column(Integer, nullable=False, default="No name")
+    balance = Column(Integer, nullable=False, default=0)
+

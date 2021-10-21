@@ -29,9 +29,13 @@ class BaseModel(Base):
 
 
 class Client(BaseModel):
-    
+    STATUS_CREATED = "Created"
+    STATUS_FINISHED = "Finished"
+
     __tablename__ = "client"
     id = Column(Integer, primary_key=True)
-    name = Column(String(256), nullable=False, default="No name")
-    last_name = Column(String(256), nullable=False, default="No last name")
+    name = Column(TEXT, nullable="False", default="No name")
+    surname = Column(TEXT, nullable=False, default="No surname")
+    username = Column(TEXT, nullable=False, default="No username")
+    status = Column(String(256), nullable=False, default="Created")
 
