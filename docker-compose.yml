@@ -6,7 +6,7 @@ services:
     container_name: order
     build: ./order
     volumes:
-      - ./order/order:/app
+      - ./order:/app
 #    ports:
 #      - 8000:8000/tcp
     environment:
@@ -20,7 +20,7 @@ services:
     container_name: client
     build: ./client
     volumes:
-      - ./client/client:/app
+      - ./client:/app
 #    ports:
 #      - 8001:8000/tcp
     environment:
@@ -34,7 +34,7 @@ services:
     container_name: payment
     build: ./payment
     volumes:
-      - ./payment/payment:/app
+      - ./payment:/app
 #    ports:
 #      - 8002:8000/tcp
     environment:
@@ -60,7 +60,7 @@ services:
     container_name: machine
     build: ./machine
     volumes: 
-      - ./machine/machine:/app
+      - ./machine:/app
 #    ports:
 #      - 8003:8000
     environment:
@@ -74,7 +74,7 @@ services:
     container_name: delivery
     build: ./delivery
     volumes: 
-      - ./delivery/delivery:/app
+      - ./delivery:/app
 #    ports:
 #      - 8004:8000
     environment:
@@ -91,4 +91,3 @@ services:
       - 15691:15691
       - 15672:15672
       - 5672:5672
-

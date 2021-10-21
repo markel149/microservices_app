@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 import pika
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672, blocked_connection_timeout=10))
 channel = connection.channel()
 channel.queue_declare(queue='hello')
 channel.basic_publish(exchange='',

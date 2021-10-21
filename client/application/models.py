@@ -34,8 +34,8 @@ class Client(BaseModel):
 
     __tablename__ = "client"
     id = Column(Integer, primary_key=True)
-    name = Column(TEXT, nullable="False", default="No name")
-    surname = Column(TEXT, nullable=False, default="No surname")
-    username = Column(TEXT, nullable=False, default="No username")
+    name = Column(String(256), nullable="False", default="No name")
+    surname = Column(String(256), nullable=False, default="No surname")
+    username = Column(String(256), nullable=False, default="No username")
     status = Column(String(256), nullable=False, default="Created")
 
