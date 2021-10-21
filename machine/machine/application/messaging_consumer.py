@@ -2,7 +2,7 @@ import pika
 import json
 import threading
 from . import Session
-from .models import Deposit
+from .models import Piece
 from flask import request, jsonify, abort
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 from .messaging_producer import send_message
@@ -17,7 +17,7 @@ class Consumer:
 
     def declare_connection(self):
         connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host='localhost'))
+            pika.ConnectionParameters(host='rabbitmq'))
         channel = connection.channel()
         channel.exchange_declare(exchange=self.exchange_name, exchange_type='topic')
 

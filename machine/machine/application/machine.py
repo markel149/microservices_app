@@ -1,7 +1,7 @@
 from random import randint
 from time import sleep
 from collections import deque
-from .models import Piece, Order
+from .models import Piece
 from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
