@@ -31,7 +31,7 @@ def create_deposit():
     return response
 
 
-@app.route('/deposit/<int:deposit_id>', methods=['GET'])
+@app.route('/payment/<int:deposit_id>', methods=['GET'])
 def view_deposit(deposit_id):
     session = Session()
     deposit = session.query(Deposit).get(deposit_id)
@@ -43,7 +43,7 @@ def view_deposit(deposit_id):
     return response
 
 
-@app.route('/change_deposit', methods=['POST'])
+@app.route('/payment', methods=['POST'])
 def change_deposit():
     session = Session()
     deposit = None
