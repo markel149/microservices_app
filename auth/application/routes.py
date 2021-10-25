@@ -4,7 +4,9 @@ from .models import Client
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
-
+import bcrypt
+import jwt
+from .crypto import rsa_singleton
 
 # Order Routes #########################################################################################################
 @app.route('/client', methods=['POST'])
@@ -17,7 +19,7 @@ def create_client():
     try:
         new_client = Client(
             username=content['username'],
-	    password=content['password'],
+	    password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
 	    role=content['role']
         )
         session.add(new_client)
@@ -37,6 +39,37 @@ def view_clients():
     print("GET All Clients.")
     clients = session.query(Client).all()
     response = jsonify(Client.list_as_dict(clients))
+    session.close()
+    return response
+
+@app.route('/client/get_jwt', methods=['GET'])
+def create_jwt():
+    session = Session()
+    if request.headers['Content-Type'] != 'application/json':
+        abort(UnsupportedMediaType.code)
+    content = request.json
+    response = None
+    try: 
+        user = session.query(Client).filter(Client.id == content['id']).one()
+        if not bcrypt.checkpw(content['password'].encode('utf-8'), user.password.encode('utf-8')):
+            raise Exception
+        payload = {
+            'id': user.id,
+            'username': user.username,
+            'service': False,
+            'role': user.role,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+        }
+        response = {
+            'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
+        }
+
+    except Exception as e:
+        create_log(__file__, str(e))
+        session.rollback()
+        session.close()
+        abort(BadRequest.code)
+    
     session.close()
     return response
 
