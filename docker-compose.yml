@@ -14,11 +14,11 @@ services:
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_ORDER}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
-  client:
-    container_name: client
-    build: ./client
+  auth:
+    container_name: auth
+    build: ./auth
     volumes:
-      - ./client/client:/app
+      - ./auth/auth:/app
     ports:
       - 8001:8000/tcp
     environment:

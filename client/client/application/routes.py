@@ -16,8 +16,9 @@ def create_client():
     content = request.json
     try:
         new_client = Client(
-            name=content['name'],
-	    last_name=content['last_name']
+            username=content['username'],
+	    password=content['password']
+            role=content['role']
         )
         session.add(new_client)
         session.commit()

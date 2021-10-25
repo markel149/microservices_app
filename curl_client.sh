@@ -1,8 +1,8 @@
 #!/bin/bash
 
-payload="{\"name\":\"$1\",\"last_name\":\"$2\"}"
+payload="{\"username\":\"$1\",\"password\":\"$2\",\"role\":\"$3\"}"
 
-curl -X POST -H 'Content-Type: application/json' --data $payload http://localhost:8080/client
+curl -X POST -H 'Content-Type: application/json' --data $payload http://localhost:8001/client
 
 
 
