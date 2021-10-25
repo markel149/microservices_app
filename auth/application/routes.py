@@ -53,6 +53,8 @@ def get_jwt():
     try: 
         user = session.query(Client).filter(Client.id == content['id']).one()
         #if not bcrypt.checkpw(content['password'].encode('utf-8'), user.password.encode('utf-8')):
+        print(user)
+        print(content['password'])
         if not user.password == content['password']:
             raise Exception
         payload = {
