@@ -14,15 +14,13 @@ services:
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_ORDER}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
-<<<<<<< HEAD
   auth:
     container_name: auth
     build: ./auth
     volumes:
-      - ./auth/auth:/app
-    ports:
-      - 8001:8000/tcp
-=======
+      - ./auth:/app
+ #   ports:
+ #     - 8001:8000/tcp
     depends_on:
       - rabbitmq
   client:
@@ -32,7 +30,6 @@ services:
       - ./client:/app
 #    ports:
 #      - 8001:8000/tcp
->>>>>>> ba2686b1ef16a094943a67b59b3819141dba7513
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_CLIENT}'
