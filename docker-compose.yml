@@ -6,14 +6,15 @@ services:
     container_name: order
     build: ./order
     volumes:
-      - ./order/order:/app
-    ports:
-      - 8000:8000/tcp
+      - ./order:/app
+#    ports:
+#      - 8000:8000/tcp
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_ORDER}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+<<<<<<< HEAD
   auth:
     container_name: auth
     build: ./auth
@@ -21,23 +22,38 @@ services:
       - ./auth/auth:/app
     ports:
       - 8001:8000/tcp
+=======
+    depends_on:
+      - rabbitmq
+  client:
+    container_name: client
+    build: ./client
+    volumes:
+      - ./client:/app
+#    ports:
+#      - 8001:8000/tcp
+>>>>>>> ba2686b1ef16a094943a67b59b3819141dba7513
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_CLIENT}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+    depends_on:
+      - rabbitmq
   payment:
     container_name: payment
     build: ./payment
     volumes:
-      - ./payment/payment:/app
-    ports:
-      - 8002:8000/tcp
+      - ./payment:/app
+#    ports:
+#      - 8002:8000/tcp
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_PAYMENT}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+    depends_on:
+      - rabbitmq
   haproxy:
     container_name: haproxy
     image: haproxy:latest
@@ -54,26 +70,30 @@ services:
     container_name: machine
     build: ./machine
     volumes: 
-      - ./machine/machine:/app
-    ports:
-      - 8003:8000
+      - ./machine:/app
+#    ports:
+#      - 8003:8000
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_MACHINE}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+    depends_on:
+      - rabbitmq
   delivery:
     container_name: delivery
     build: ./delivery
     volumes: 
-      - ./delivery/delivery:/app
-    ports:
-      - 8004:8000
+      - ./delivery:/app
+#    ports:
+#      - 8004:8000
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_DELIVERY}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     restart: on-failure
+    depends_on:
+      - rabbitmq
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3-management
@@ -81,4 +101,3 @@ services:
       - 15691:15691
       - 15672:15672
       - 5672:5672
-

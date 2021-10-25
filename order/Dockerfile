@@ -1,6 +1,6 @@
 FROM python:3.6
 
-ADD ./order/requirements.txt /app/requirements.txt
+ADD ./requirements.txt /app/requirements.txt
 
 WORKDIR /app
 
