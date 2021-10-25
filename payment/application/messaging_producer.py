@@ -3,7 +3,7 @@ import pika
 
 def send_message(exchange_name, routing_key, message):
     connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='localhost'))
+        pika.ConnectionParameters(host='rabbitmq'))
     channel = connection.channel()
 
     channel.exchange_declare(exchange=exchange_name, exchange_type='topic')

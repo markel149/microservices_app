@@ -2,15 +2,18 @@ import pika
 import json
 import threading
 from . import Session
-from .models import Piece
+from application.models import PiecesOrdered, Piece
+from application.machine import Machine
 from flask import request, jsonify, abort
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 from .messaging_producer import send_message
 
+my_machine = Machine()
 
 class Consumer:
-    def __init__(self, exchange_name, routing_key, callback):
+    def __init__(self, exchange_name, queue_name, routing_key, callback):
         self.exchange_name = exchange_name
+        self.queue_name = queue_name
         self.routing_key = routing_key
         self.callback = callback
         self.declare_connection()
@@ -21,7 +24,7 @@ class Consumer:
         channel = connection.channel()
         channel.exchange_declare(exchange=self.exchange_name, exchange_type='topic')
 
-        result = channel.queue_declare('', exclusive=True)
+        result = channel.queue_declare(self.queue_name, exclusive=True)
         queue_name = result.method.queue
 
         channel.queue_bind(exchange=self.exchange_name, queue=queue_name, routing_key=self.routing_key)
@@ -37,25 +40,29 @@ class Consumer:
         print('New order created:  ' + str(message['order_id']))
 
         session = Session()
-        deposito = session.query(Deposit).filter(Deposit.id_cliente == message['client_id']).one()
-        if not deposito:
-            abort(NotFound.code)
-        print("GET Deposit {}: {}".format(deposito.id_deposito, deposito.saldo))
-
-        # Imagine a piece's price is 5
-        status=''
-        cost = int(message['number_of_pieces']) * 5
-        if cost > deposito.saldo:
-            status = 'REJECTED'
-        else:
-            status = 'PAID'
-            deposito.saldo = deposito.saldo - cost
+        new_order = PiecesOrdered(
+            order_id=message['order_id'],
+            number_of_pieces=message['number_of_pieces']
+        )
+        session.add(new_order)
         session.commit()
-        message_body = {
-            'id_order': message['id_order'],
-            'id_cliente': message['id_cliente'],
-            'number_of_pieces': message['number_of_pieces'],
-            'payment_status': status
-        }
-        send_message(exchange_name='payment_exchange', routing_key='payment.payment_status_changed', message=json.dumps(message_body))
+        session.close()
+
+    @staticmethod
+    def consume_order_paid(ch, method, properties, body):
+        message = json.loads(body)
+        print('New order paid:  ' + str(message['order_id']))
+
+        session = Session()
+        pieces_ordered = session.query(PiecesOrdered).filter(PiecesOrdered.order_id == message['order_id']).one()
+        if str(message['payment_status']) == 'REJECTED':
+            pieces_ordered.status = 'REJECTED'
+        else:
+            for i in range(pieces_ordered.number_of_pieces):
+                piece = Piece()
+                piece.order = pieces_ordered
+                session.add(piece)
+            session.commit()
+            my_machine.add_pieces_to_queue(pieces_ordered.pieces)
+            session.commit()
         session.close()

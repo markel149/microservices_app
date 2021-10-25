@@ -21,20 +21,10 @@ services:
       - ./auth:/app
  #   ports:
  #     - 8001:8000/tcp
-    depends_on:
-      - rabbitmq
-  client:
-    container_name: client
-    build: ./client
-    volumes:
-      - ./client:/app
-#    ports:
-#      - 8001:8000/tcp
     environment:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_CLIENT}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
-    restart: on-failure
     depends_on:
       - rabbitmq
   payment:

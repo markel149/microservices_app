@@ -1,10 +1,11 @@
 from random import randint
 from time import sleep
 from collections import deque
-from .models import Piece
+from .models import Piece, PiecesOrdered
 from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
+from application.messaging_producer import send_message
 
 
 class Machine(Thread):
@@ -86,7 +87,9 @@ class Machine(Thread):
             if piece.status != Piece.STATUS_MANUFACTURED:
                 order_finished = False
         if order_finished:
-            self.working_piece.order.status = Order.STATUS_FINISHED
+            self.working_piece.order.status = PiecesOrdered.STATUS_FINISHED
+            #message_body = {'order_id': self.working_piece.order.order_id}
+            #send_message(exchange_name='event_exchange', routing_key='machine.pieces_from_order_created', message=message_body)
 
         self.thread_session.commit()
         self.thread_session.flush()

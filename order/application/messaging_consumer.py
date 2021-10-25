@@ -44,15 +44,18 @@ class Consumer:
         print("GET Order {}: {}".format(order.order_id, order.client_id))
         order.status = str(message['payment_status'])
         session.commit()
-        if str(message['payment_status']) == 'PAID':
-            message_body = {
-                'order_id': message['order_id'],
-                'number_of_pieces': order.number_of_pieces
-            }
-            send_message(exchange_name='event_exchange', routing_key='order.order_paid', message=message_body)
         session.close()
 
     @staticmethod
     def consume_pieces_ready(ch, method, properties, body):
         message = json.loads(body)
         print(message)
+        #CAMBIOS
+        session = Session()
+        order = session.query(Order).filter(Order.order_id == message['order_id']).one()
+        if not order:
+            abort(NotFound.code)
+        print("GET Order {}: {}".format(order.order_id, order.client_id))
+        order.status = 'MANUFACTURED'
+        session.commit()
+        session.close()
