@@ -19,8 +19,9 @@ def create_client():
     try:
         new_client = Client(
             username=content['username'],
-	    password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
-	    role=content['role']
+	    #password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
+	    password = content['password'],
+        role=content['role']
         )
         session.add(new_client)
         session.commit()
@@ -43,7 +44,7 @@ def view_clients():
     return response
 
 @app.route('/client/get_jwt', methods=['GET'])
-def create_jwt():
+def get_jwt():
     session = Session()
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
@@ -51,7 +52,8 @@ def create_jwt():
     response = None
     try: 
         user = session.query(Client).filter(Client.id == content['id']).one()
-        if not bcrypt.checkpw(content['password'].encode('utf-8'), user.password.encode('utf-8')):
+        #if not bcrypt.checkpw(content['password'].encode('utf-8'), user.password.encode('utf-8')):
+        if not user.password == content['password']:
             raise Exception
         payload = {
             'id': user.id,
@@ -65,7 +67,7 @@ def create_jwt():
         }
 
     except Exception as e:
-        create_log(__file__, str(e))
+        
         session.rollback()
         session.close()
         abort(BadRequest.code)
