@@ -4,6 +4,7 @@ from .models import Deposit
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
+from app import auth_public_key
 
 
 # Order Routes #########################################################################################################

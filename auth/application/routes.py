@@ -15,6 +15,7 @@ import requests
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_OAEP
 from application.messaging_producer import send_message
+from .validatejwt import validate_token
 
 # Order Routes #########################################################################################################
 @app.route('/client', methods=['POST'])

@@ -6,6 +6,8 @@ import traceback
 from . import Session
 import json
 from application.messaging_producer import send_message
+from app import auth_public_key
+
 
 
 # Order Routes #########################################################################################################

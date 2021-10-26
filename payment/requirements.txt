@@ -14,3 +14,4 @@ werkzeug==0.15.6
 # As a production server
 gunicorn==19.9.0
 pika~=1.2.0
+requests

@@ -4,6 +4,7 @@ key = RSA.generate(2048)
 private_key = key.export_key()
 public_key = key.publickey().export_key()
 
+
 class rsa_singleton(object):
     @staticmethod
     def get_public_key():        
