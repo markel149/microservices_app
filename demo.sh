@@ -19,9 +19,9 @@ create_order() {
 get_jwt() {
   read -p "Username: " username
   read -p "Password: " password
-  read -p  "Cliend ID: " cid
-  payload="{\"username\":\"$username\",\"password\":\"$password\", \"id\":\"$cid\"}"
-  curl -X GET -H 'Content-Type: application/json' --data $payload http://localhost:8080/client/get_jwt | jq
+  read -p "Cliend ID: " cid
+  #payload="{\"username\":\"$username\",\"password\":\"$password\",\"id\":\"$cid\"}"
+  curl -H 'Content-Type: application/json' --data-urlencode "username=aaa" --data-urlencode "password=aaa" --data-urlencode "id=1" http://localhost:8080/client/get_jwt | jq
 }
 
 pay(){

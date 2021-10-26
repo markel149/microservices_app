@@ -2,6 +2,9 @@ from sqlalchemy import Column, DateTime, Integer, String, TEXT, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
+import bcrypt
+from . import Session
+from sqlalchemy import event
 
 Base = declarative_base()
 
@@ -36,4 +39,9 @@ class Client(BaseModel):
     password = Column(String(256), nullable=False, default="123123")
     role =  Column(String(256), nullable=False, default="operator")
 
-
+@event.listens_for(Client.__table__, 'after_create')
+def create_admin(*args, **kwargs):
+    session = Session()
+    session.add(Client(username='admin', password=bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode('utf-8'), role='admin'))
+    session.commit()
+    session.close()

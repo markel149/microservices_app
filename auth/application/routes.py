@@ -7,6 +7,9 @@ from . import Session
 import bcrypt
 import jwt
 from .crypto import rsa_singleton
+import json
+import base64
+import datetime
 
 # Order Routes #########################################################################################################
 @app.route('/client', methods=['POST'])
@@ -15,23 +18,27 @@ def create_client():
     new_client = None
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
-    content = request.json
-    try:
-        new_client = Client(
-            username=content['username'],
-	    #password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
-	    password = content['password'],
-        role=content['role']
-        )
-        session.add(new_client)
-        session.commit()
-    except KeyError:
-        session.rollback()
-        abort(BadRequest.code)
-        session.close()
-    response = jsonify(new_client.as_dict())
-    session.close()
-    return response
+    
+    return request.headers['Authorization'].replace("Bearer ", "")
+    
+    # if not base64.b64decode(request.headers['Authorization'].replace("Bearer ", "").decode('utf-8').split(".")[1])[]
+    # content = request.json
+    # try:
+    #     new_client = Client(
+    #         username=content['username'],
+	#     password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
+	#     #password = content['password'],
+    #     role=content['role']
+    #     )
+    #     session.add(new_client)
+    #     session.commit()
+    # except KeyError:
+    #     session.rollback()
+    #     abort(BadRequest.code)
+    #     session.close()
+    # response = jsonify(new_client.as_dict())
+    # session.close()
+    # return response
 
 @app.route('/client', methods=['GET'])
 @app.route('/clients', methods=['GET'])
@@ -43,19 +50,21 @@ def view_clients():
     session.close()
     return response
 
-@app.route('/client/get_jwt', methods=['GET'])
-def get_jwt():
+@app.route('/client/create_jwt', methods=['GET'])
+def create_jwt():
     session = Session()
+    response = None
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
-    content = request.json
-    response = None
-    try: 
-        user = session.query(Client).filter(Client.id == content['id']).one()
-        #if not bcrypt.checkpw(content['password'].encode('utf-8'), user.password.encode('utf-8')):
-        print(user)
-        print(content['password'])
-        if not user.password == content['password']:
+    
+    userpass = base64.b64decode(request.headers['Authorization'].replace("Basic ",""))
+    userpass2 = userpass.decode('utf-8').split(":")
+    username = userpass2[0]
+    password = userpass2[1]  
+    try:
+        user = session.query(Client).filter(Client.username == username).one()
+
+        if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             raise Exception
         payload = {
             'id': user.id,
@@ -67,15 +76,22 @@ def get_jwt():
         response = {
             'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
         }
-
+     
     except Exception as e:
-        
+      
         session.rollback()
         session.close()
         abort(BadRequest.code)
     
     session.close()
     return response
+
+@app.route('/client/get_public_key', methods=['GET'])
+def get_public_key():
+    content = {}
+    content['public_key'] = rsa_singleton.get_public_key().decode()
+    return content  
+
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
