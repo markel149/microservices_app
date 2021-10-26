@@ -60,3 +60,17 @@ class Consumer:
         }
         send_message(exchange_name='event_exchange', routing_key='payment.payment_status_changed', message=json.dumps(message_body))
         session.close()
+
+    @staticmethod
+    def consume_new_client(ch, method, properties, body):
+        message = json.loads(body)
+        print('New client created:  ' + str(message['order_id']))
+
+        session = Session()
+        new_deposit = Deposit(
+            client_id=message['client_id'],
+            balance=0
+        )
+        session.add(new_deposit)
+        session.commit()
+        session.close()

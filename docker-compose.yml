@@ -40,12 +40,15 @@ services:
     image: haproxy:latest
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./haproxy/aas.crt:/usr/local/etc/haproxy/aas.crt
     ports:
       - '${HA_PROXY_PORT}:${HA_PROXY_PORT}'
       - '${HA_PROXY_STATS_PORT}:${HA_PROXY_STATS_PORT}'
+      - '${HA_PROXY_TLS_PORT}:${HA_PROXY_TLS_PORT}'
     environment:
       HA_PROXY_STATS_PORT: '${HA_PROXY_STATS_PORT}'
       HA_PROXY_PORT: '${HA_PROXY_PORT}'
+      HA_PROXY_TLS_PORT: '${HA_PROXY_TLS_PORT}'
     restart: always
     depends_on:
       - order
