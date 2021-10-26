@@ -23,51 +23,37 @@ def create_client():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     
-    header = request.headers['Authorization'].replace("Bearer ", "").split(".")[0]
-    header = header + '=' * (4 - len(header) % 4) if len(header) % 4 != 0 else header
+    #header = request.headers['Authorization'].replace("Bearer ", "").split(".")[0]
+    #header = header + '=' * (4 - len(header) % 4) if len(header) % 4 != 0 else header
 
-    signature = request.headers['Authorization'].replace("Bearer ", "").split(".")[2]
-    signature = signature + '=' * (4 - len(signature) % 4) if len(signature) % 4 != 0 else signature
+    #signature = request.headers['Authorization'].replace("Bearer ", "").split(".")[2]
+    #signature = signature + '=' * (4 - len(signature) % 4) if len(signature) % 4 != 0 else signature
 
     response = requests.get("http://auth:8000/client/get_public_key")
     key = json.loads(response.content)['public_key']
 
-    # key = RSA.importKey(key)
-    # cipher = PKCS1_OAEP.new(key)
-    # signature = cipher.decrypt(signature)
+    decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), key,algorithms=["RS256"])
     
-
-    decoded = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), key,algorithms=["RS256"])
-
-    return decoded
-   
+    if decodedJWT['role'] != "admin":
+         abort(Forbidden.code)
     
-
-    # payload = request.headers['Authorization'].replace("Bearer ", "").split(".")[1]
-    # payload = payload + '=' * (4 - len(payload) % 4) if len(payload) % 4 != 0 else payload
-
-    
-    
-    # if json.loads(base64.b64decode(auth).decode('utf-8'))['role'] != "admin" and json.loads(base64.b64decode(auth).decode('utf-8'))['typ'] != "JWT" and :
-    #     abort(Forbidden.code)
-    
-    # content = request.json
-    # try:
-    #     new_client = Client(
-    #         username=content['username'],
-	#     password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
+    content = request.json
+    try:
+        new_client = Client(
+            username=content['username'],
+	        password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
 	#     #password = content['password'],
-    #     role=content['role']
-    #     )
-    #     session.add(new_client)
-    #     session.commit()
-    # except KeyError:
-    #     session.rollback()
-    #     abort(BadRequest.code)
-    #     session.close()
-    # response = jsonify(new_client.as_dict())
-    # session.close()
-    # return response
+            role=content['role']
+         )
+        session.add(new_client)
+        session.commit()
+    except KeyError:
+        session.rollback()
+        abort(BadRequest.code)
+        session.close()
+    response = jsonify(new_client.as_dict())
+    session.close()
+    return response
 
 @app.route('/client', methods=['GET'])
 @app.route('/clients', methods=['GET'])

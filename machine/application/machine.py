@@ -1,3 +1,4 @@
+import json
 from random import randint
 from time import sleep
 from collections import deque
@@ -5,7 +6,7 @@ from .models import Piece, PiecesOrdered
 from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
-from application.messaging_producer import send_message
+from .messaging_producer import send_message
 
 
 class Machine(Thread):
@@ -23,6 +24,7 @@ class Machine(Thread):
         self.instance = self
         self.queue_not_empty_event = Event()
         self.reload_pieces_at_startup()
+        self.order_finished = 0
         self.start()
 
     def reload_pieces_at_startup(self):
@@ -88,8 +90,9 @@ class Machine(Thread):
                 order_finished = False
         if order_finished:
             self.working_piece.order.status = PiecesOrdered.STATUS_FINISHED
-            #message_body = {'order_id': self.working_piece.order.order_id}
-            #send_message(exchange_name='event_exchange', routing_key='machine.pieces_from_order_created', message=message_body)
+            print('order id: '+ str(self.working_piece.order.order_id))
+            message_body = {'order_id': self.working_piece.order.order_id}
+            send_message(exchange_name='event_exchange', routing_key='machine.pieces_from_order_created', message=json.dumps(message_body))
 
         self.thread_session.commit()
         self.thread_session.flush()
@@ -109,6 +112,4 @@ class Machine(Thread):
             if piece.status == Piece.STATUS_QUEUED:
                 self.queue.remove(piece.ref)
                 piece.status = Piece.STATUS_CANCELLED
-
-
 
