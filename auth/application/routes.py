@@ -39,22 +39,24 @@ def create_client():
 	        password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
 	#     #password = content['password'],
             role=content['role']
-         )
+        )
+
         session.add(new_client)
-        session.flush()
         session.commit()
+
+        
     except KeyError:
         session.rollback()
         abort(BadRequest.code)
         session.close()
-    return str(new_client.id)
-    # message_body = {
-    #     'client_id': content['client_id']
-    # }
-    # send_message(exchange_name='event_exchange', routing_key='client.client_created', message=json.dumps(message_body))
-    # response = jsonify(new_client.as_dict())
-    # session.close()
-    # return response
+    
+    response = jsonify(new_client.as_dict())
+    session.close()
+    message_body = {
+        'client_id': new_client.id
+    }
+    send_message(exchange_name='event_exchange', routing_key='client.client_created', message=json.dumps(message_body))
+    return response
 
 @app.route('/client', methods=['GET'])
 @app.route('/clients', methods=['GET'])

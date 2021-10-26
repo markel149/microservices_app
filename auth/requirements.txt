@@ -18,4 +18,4 @@ PyJWT==1.7.1
 pycryptodome
 cryptography
 requests
-pika
+pika~=1.2.0

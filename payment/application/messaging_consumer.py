@@ -64,7 +64,7 @@ class Consumer:
     @staticmethod
     def consume_new_client(ch, method, properties, body):
         message = json.loads(body)
-        print('New client created:  ' + str(message['order_id']))
+        print('New client created:  ' + str(message['client_id']))
 
         session = Session()
         new_deposit = Deposit(
