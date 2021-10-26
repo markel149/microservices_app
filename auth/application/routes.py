@@ -1,7 +1,8 @@
+from Crypto.PublicKey.RSA import import_key
 from flask import request, jsonify, abort
 from flask import current_app as app
 from .models import Client
-from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
+from werkzeug.exceptions import Forbidden, HTTPException, NotFound, InternalServerError, BadRequest, Unauthorized, UnsupportedMediaType
 import traceback
 from . import Session
 import bcrypt
@@ -10,6 +11,9 @@ from .crypto import rsa_singleton
 import json
 import base64
 import datetime
+import requests
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_OAEP
 
 # Order Routes #########################################################################################################
 @app.route('/client', methods=['POST'])
@@ -19,9 +23,34 @@ def create_client():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     
-    return request.headers['Authorization'].replace("Bearer ", "")
+    header = request.headers['Authorization'].replace("Bearer ", "").split(".")[0]
+    header = header + '=' * (4 - len(header) % 4) if len(header) % 4 != 0 else header
+
+    signature = request.headers['Authorization'].replace("Bearer ", "").split(".")[2]
+    signature = signature + '=' * (4 - len(signature) % 4) if len(signature) % 4 != 0 else signature
+
+    response = requests.get("http://auth:8000/client/get_public_key")
+    key = json.loads(response.content)['public_key']
+
+    # key = RSA.importKey(key)
+    # cipher = PKCS1_OAEP.new(key)
+    # signature = cipher.decrypt(signature)
     
-    # if not base64.b64decode(request.headers['Authorization'].replace("Bearer ", "").decode('utf-8').split(".")[1])[]
+
+    decoded = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), key,algorithms=["RS256"])
+
+    return decoded
+   
+    
+
+    # payload = request.headers['Authorization'].replace("Bearer ", "").split(".")[1]
+    # payload = payload + '=' * (4 - len(payload) % 4) if len(payload) % 4 != 0 else payload
+
+    
+    
+    # if json.loads(base64.b64decode(auth).decode('utf-8'))['role'] != "admin" and json.loads(base64.b64decode(auth).decode('utf-8'))['typ'] != "JWT" and :
+    #     abort(Forbidden.code)
+    
     # content = request.json
     # try:
     #     new_client = Client(
@@ -112,6 +141,9 @@ def resource_not_found_handler(e):
 def server_error_handler(e):
     return get_jsonified_error(e)
 
+@app.errorhandler(Forbidden)
+def server_error_handler(e):
+    return get_jsonified_error(e)
 
 def get_jsonified_error(e):
     traceback.print_tb(e.__traceback__)

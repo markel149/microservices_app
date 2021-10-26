@@ -17,3 +17,4 @@ bcrypt
 PyJWT==1.7.1
 pycryptodome
 cryptography
+requests
