@@ -7,9 +7,9 @@ from . import Session
 #from app import auth_public_key
 
 ### Get Public Key
-response = requests.get("http://auth:8000/client/get_public_key")
-global auth_public_key
-auth_public_key = json.loads(response.content)['public_key']
+# response = requests.get("http://auth:8000/client/get_public_key")
+# auth_public_key
+# auth_public_key = json.loads(response.content)['public_key']
 # Order Routes #########################################################################################################
 
 @app.route('/create_deposit', methods=['POST'])
