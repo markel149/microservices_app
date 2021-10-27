@@ -6,18 +6,21 @@ import traceback
 from . import Session
 import json
 from application.messaging_producer import send_message
-from app import auth_public_key
+import requests
 
-
+### Get Public Key
+response = requests.get("http://auth:8000/client/get_public_key")
+global auth_public_key
+auth_public_key = json.loads(response.content)['public_key']
 
 # Order Routes #########################################################################################################
-
 @app.route('/order', methods=['POST'])
 def create_order():
     session = Session()
     new_order = None
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
+    
     content = request.json
     try:
         new_order = Order(

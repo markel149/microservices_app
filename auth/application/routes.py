@@ -12,10 +12,8 @@ import json
 import base64
 import datetime
 import requests
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
 from application.messaging_producer import send_message
-from .validatejwt import validate_token
+from .validatejwt import Validatejwt
 
 # Order Routes #########################################################################################################
 @app.route('/client', methods=['POST'])
@@ -25,13 +23,11 @@ def create_client():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
 
-    response = requests.get("http://auth:8000/client/get_public_key")
-    key = json.loads(response.content)['public_key']
-
-    decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), key,algorithms=["RS256"])
+    if not Validatejwt.is_admin(request.headers['Authorization'], rsa_singleton.get_public_key()):
+        abort(Forbidden.code)
     
-    if decodedJWT['role'] != "admin":
-         abort(Forbidden.code)
+    if not Validatejwt.validate_token(request.headers['Authorization'], rsa_singleton.get_public_key()):
+        return jsonify({"error_message": "ExpiredSignatureError"})
     
     content = request.json
     try:
@@ -134,6 +130,7 @@ def server_error_handler(e):
 @app.errorhandler(Forbidden)
 def server_error_handler(e):
     return get_jsonified_error(e)
+
 
 def get_jsonified_error(e):
     traceback.print_tb(e.__traceback__)
