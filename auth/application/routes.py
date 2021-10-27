@@ -28,27 +28,15 @@ def create_client():
     new_client = None
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
-
-#    if not Validatejwt.is_admin(request.headers['Authorization'], rsa_singleton.get_public_key()):
-#        abort(Forbidden.code)
-    
-#    if not Validatejwt.validate_token(request.headers['Authorization'], rsa_singleton.get_public_key()):
-#        return jsonify({"error_message": "ExpiredSignatureError"})
-    
     try:
         decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), rsa_singleton.get_public_key(), algorithms=["RS256"])
         if decodedJWT['role'] != "admin":
             abort(Forbbiden.code)
     except ExpiredSignatureError as e:
-        return " Error: Token Expired"
+        return jsonify({"error_message": "Token Expired"})
     except DecodeError as e:
-        return " Error: Failed to decode JWT Token"
-
-    # Expiration
-    #if datetime.datetime.utcnow() > datetime.datetime.utcnow() + datetime.timedelta(minutes=30):
-    #    return "Token Expired"
+        return jsonify({"error_message": "Decode Error"})
     
-
     content = request.json
     try:
         new_client = Client(
