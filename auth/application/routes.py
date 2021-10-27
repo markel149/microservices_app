@@ -31,7 +31,7 @@ def create_client():
     try:
         decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), rsa_singleton.get_public_key(), algorithms=["RS256"])
         if decodedJWT['role'] != "admin":
-            abort(Forbbiden.code)
+            abort(Forbidden.code)
     except ExpiredSignatureError as e:
         return jsonify({"error_message": "Token Expired"})
     except DecodeError as e:
