@@ -13,6 +13,7 @@ import base64
 import datetime
 import requests
 from application.messaging_producer import send_message
+from jwt.exceptions import ExpiredSignatureError, DecodeError
  
 message_body = {
     "update": 1
@@ -34,19 +35,19 @@ def create_client():
 #    if not Validatejwt.validate_token(request.headers['Authorization'], rsa_singleton.get_public_key()):
 #        return jsonify({"error_message": "ExpiredSignatureError"})
     
-        try:
-            decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), pub_key, algorithms=["RS256"])
-            if decodedJWT['role'] != "admin":
-                abort(Forbbiden.code)
-        except ExpiredSignatureError as e:
-            abort(ExpiredSignatureError)
-        except DecodeError as e:
-            abort(DecodeError)
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), rsa_singleton.get_public_key(), algorithms=["RS256"])
+        if decodedJWT['role'] != "admin":
+            abort(Forbbiden.code)
+    except ExpiredSignatureError as e:
+        return " Error: Token Expired"
+    except DecodeError as e:
+        return " Error: Failed to decode JWT Token"
 
-        # Expiration
-        if datetime.datetime.utcnow() > datetime.datetime.utcnow() + datetime.timedelta(minutes=30):
-            return "Token Expired"
-        return True
+    # Expiration
+    #if datetime.datetime.utcnow() > datetime.datetime.utcnow() + datetime.timedelta(minutes=30):
+    #    return "Token Expired"
+    
 
     content = request.json
     try:
@@ -105,7 +106,7 @@ def create_jwt():
             'username': user.username,
             'service': False,
             'role': user.role,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
         }
         response = {
             'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
