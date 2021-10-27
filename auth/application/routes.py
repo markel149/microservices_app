@@ -13,8 +13,7 @@ import base64
 import datetime
 import requests
 from application.messaging_producer import send_message
-from .validatejwt import Validatejwt
-
+from 
 message_body = {
     "update": 1
 }
@@ -29,12 +28,26 @@ def create_client():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
 
-    if not Validatejwt.is_admin(request.headers['Authorization'], rsa_singleton.get_public_key()):
-        abort(Forbidden.code)
+#    if not Validatejwt.is_admin(request.headers['Authorization'], rsa_singleton.get_public_key()):
+#        abort(Forbidden.code)
     
-    if not Validatejwt.validate_token(request.headers['Authorization'], rsa_singleton.get_public_key()):
-        return jsonify({"error_message": "ExpiredSignatureError"})
+#    if not Validatejwt.validate_token(request.headers['Authorization'], rsa_singleton.get_public_key()):
+#        return jsonify({"error_message": "ExpiredSignatureError"})
     
+        try:
+            decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), pub_key, algorithms=["RS256"])
+            if decodedJWT['role'] != "admin":
+                abort(Forbbiden.code)
+        except ExpiredSignatureError as e:
+            abort(ExpiredSignatureError)
+        except DecodeError as e:
+            abort(DecodeError)
+
+        # Expiration
+        if datetime.datetime.utcnow() > datetime.datetime.utcnow() + datetime.timedelta(minutes=30):
+            return "Token Expired"
+        return True
+
     content = request.json
     try:
         new_client = Client(
