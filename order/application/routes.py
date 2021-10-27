@@ -5,9 +5,10 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 import traceback
 from . import Session
 import json
+import jwt
 from application.messaging_producer import send_message
 import requests
-
+from jwt.exceptions import ExpiredSignatureError, DecodeError
 
 s=requests.Session()
 response = s.get("http://auth:8000/client/get_public_key")
@@ -17,7 +18,7 @@ s.close()
 # Order Routes #########################################################################################################
 @app.route('/order', methods=['POST'])
 def create_order():
-    return auth_public_key
+    #return auth_public_key
     session = Session()
     new_order = None
     if request.headers['Content-Type'] != 'application/json':

@@ -17,7 +17,7 @@ class Consumer:
         self.routing_key = routing_key
         self.callback = callback
         self.declare_connection()
-        global auth_public_key
+     
 
     def declare_connection(self):
         connection = pika.BlockingConnection(
