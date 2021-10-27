@@ -22,6 +22,13 @@ def create_order():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
+    
     content = request.json
     try:
         new_order = Order(
@@ -50,6 +57,12 @@ def create_order():
 @app.route('/order', methods=['GET'])
 @app.route('/orders', methods=['GET'])
 def view_orders():
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     print("GET All Orders.")
     orders = session.query(Order).all()
@@ -60,6 +73,12 @@ def view_orders():
 
 @app.route('/order/<int:order_id>', methods=['GET'])
 def view_order(order_id):
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     order = session.query(Order).get(order_id)
     if not order:

@@ -16,7 +16,12 @@ s.close()
 
 @app.route('/create_deposit', methods=['POST'])
 def create_deposit():
-    return auth_public_key
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     new_deposit = None
     if request.headers['Content-Type'] != 'application/json':

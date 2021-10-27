@@ -94,7 +94,7 @@ def create_jwt():
             'username': user.username,
             'service': False,
             'role': user.role,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }
         response = {
             'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
