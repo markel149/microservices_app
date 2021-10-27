@@ -16,6 +16,7 @@ s.close()
 
 @app.route('/create_deposit', methods=['POST'])
 def create_deposit():
+    return auth_public_key
     try:
         decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
     except ExpiredSignatureError as e:

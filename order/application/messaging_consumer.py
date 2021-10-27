@@ -64,10 +64,8 @@ class Consumer:
     @staticmethod
     def consume_pub_key(ch, method, properties, body):
         ### Get Public Key
-        time.sleep(5)
+        time.sleep(10)
         global auth_public_key
-        s=requests.Session()
-        response = s.get("http://auth:8000/client/get_public_key")
+        response = requests.get("http://auth:8000/client/get_public_key")
         auth_public_key = json.loads(response.content)['public_key']
-        s.close()
         

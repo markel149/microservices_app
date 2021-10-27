@@ -82,8 +82,6 @@ class Consumer:
         ### Get Public Key
         time.sleep(9)
         global auth_public_key
-        s=requests.Session()
-        response = s.get("http://auth:8000/client/get_public_key")
+        response = requests.get("http://auth:8000/client/get_public_key")
         auth_public_key = json.loads(response.content)['public_key']
-        s.close()
         
