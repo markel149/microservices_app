@@ -16,7 +16,7 @@ from application.messaging_producer import send_message
 from jwt.exceptions import ExpiredSignatureError, DecodeError
  
 message_body = {
-    "update": 1
+    "public_key": rsa_singleton.get_public_key().decode('utf-8')
 }
 send_message(exchange_name='event_exchange', routing_key='auth.pub_key', message=json.dumps(message_body))
 send_message(exchange_name='event_exchange', routing_key='auth.pub_key2', message=json.dumps(message_body))

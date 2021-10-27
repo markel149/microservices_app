@@ -7,6 +7,7 @@ from . import Session
 import requests
 import json
 
+
 s=requests.Session()
 response = s.get("http://auth:8000/client/get_public_key")
 auth_public_key = json.loads(response.content)['public_key']
@@ -16,6 +17,7 @@ s.close()
 
 @app.route('/create_deposit', methods=['POST'])
 def create_deposit():
+    global auth_public_key
     return auth_public_key
     try:
         decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])

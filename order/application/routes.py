@@ -8,6 +8,7 @@ import json
 from application.messaging_producer import send_message
 import requests
 
+
 s=requests.Session()
 response = s.get("http://auth:8000/client/get_public_key")
 auth_public_key = json.loads(response.content)['public_key']

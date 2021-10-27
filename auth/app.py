@@ -4,10 +4,6 @@ import json
 
 app = create_app()
 
-message_body = {
-    "update": 1
-}
-
 app.app_context().push()
 
 if __name__ == "__main__":

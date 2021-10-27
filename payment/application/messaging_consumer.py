@@ -17,6 +17,7 @@ class Consumer:
         self.routing_key = routing_key
         self.callback = callback
         self.declare_connection()
+        global auth_public_key
 
     def declare_connection(self):
         connection = pika.BlockingConnection(
@@ -24,7 +25,7 @@ class Consumer:
         channel = connection.channel()
         channel.exchange_declare(exchange=self.exchange_name, exchange_type='topic')
 
-        result = channel.queue_declare(self.queue_name, exclusive=False)
+        result = channel.queue_declare(self.queue_name, exclusive=True)
         #queue_name = result.method.queue
 
         channel.queue_bind(exchange=self.exchange_name, queue=self.queue_name, routing_key=self.routing_key)
@@ -79,9 +80,7 @@ class Consumer:
     
     @staticmethod
     def consume_pub_key(ch, method, properties, body):
-        ### Get Public Key
-        time.sleep(9)
+        message = json.loads(body)
         global auth_public_key
-        response = requests.get("http://auth:8000/client/get_public_key")
-        auth_public_key = json.loads(response.content)['public_key']
+        routes.auth_public_key = message['public_key']
         
