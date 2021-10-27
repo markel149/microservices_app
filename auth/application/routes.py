@@ -13,7 +13,7 @@ import base64
 import datetime
 import requests
 from application.messaging_producer import send_message
-from 
+ 
 message_body = {
     "update": 1
 }
