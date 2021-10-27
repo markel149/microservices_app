@@ -1,0 +1,1 @@
+sqlite3 -column -header auth/client.db "SELECT * FROM Client"  
