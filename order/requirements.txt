@@ -15,5 +15,7 @@ werkzeug==0.15.6
 gunicorn==19.9.0
 pika~=1.2.0
 requests
-PyJWT==1.6.1
+PyJWT==1.7.1
 
+pycryptodome
+cryptography
