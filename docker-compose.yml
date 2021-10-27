@@ -26,6 +26,7 @@ services:
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
     depends_on:
       - rabbitmq
+    restart: always
   payment:
     container_name: payment
     build: ./payment

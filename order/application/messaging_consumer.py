@@ -6,7 +6,8 @@ from flask import request, jsonify, abort
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 from .models import Order
 from .messaging_producer import send_message
-#from app import auth_public_key 
+import requests
+import time
 
 class Consumer:
     def __init__(self, exchange_name, queue_name, routing_key, callback):
@@ -60,9 +61,13 @@ class Consumer:
         session.commit()
         session.close()
     
-    # @staticmethod
-    # def consume_pub_key(ch, method, properties, body):
-    #     ### Get Public Key
-    #     response = requests.get("http://auth:8000/client/get_public_key")
-    #     auth_public_key = json.loads(response.content)['public_key']
+    @staticmethod
+    def consume_pub_key(ch, method, properties, body):
+        ### Get Public Key
+        time.sleep(5)
+        global auth_public_key
+        s=requests.Session()
+        response = s.get("http://auth:8000/client/get_public_key")
+        auth_public_key = json.loads(response.content)['public_key']
+        s.close()
         

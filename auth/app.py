@@ -7,7 +7,6 @@ app = create_app()
 message_body = {
     "update": 1
 }
-#send_message(exchange_name='event_exchange', routing_key='auth.pub_key', message=json.dumps(message_body))
 
 app.app_context().push()
 

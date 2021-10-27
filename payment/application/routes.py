@@ -4,16 +4,19 @@ from .models import Deposit
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
-#from app import auth_public_key
+import requests
+import json
 
-### Get Public Key
-# response = requests.get("http://auth:8000/client/get_public_key")
-# auth_public_key
-# auth_public_key = json.loads(response.content)['public_key']
+s=requests.Session()
+response = s.get("http://auth:8000/client/get_public_key")
+auth_public_key = json.loads(response.content)['public_key']
+s.close()
+
 # Order Routes #########################################################################################################
 
 @app.route('/create_deposit', methods=['POST'])
 def create_deposit():
+    return auth_public_key
     session = Session()
     new_deposit = None
     if request.headers['Content-Type'] != 'application/json':

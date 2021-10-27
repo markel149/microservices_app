@@ -6,14 +6,17 @@ import traceback
 from . import Session
 import json
 from application.messaging_producer import send_message
-# from app import auth_public_key
+import requests
 
-
+s=requests.Session()
+response = s.get("http://auth:8000/client/get_public_key")
+auth_public_key = json.loads(response.content)['public_key']
+s.close()
 
 # Order Routes #########################################################################################################
 @app.route('/order', methods=['POST'])
 def create_order():
-    
+    return auth_public_key
     session = Session()
     new_order = None
     if request.headers['Content-Type'] != 'application/json':

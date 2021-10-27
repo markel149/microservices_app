@@ -15,6 +15,12 @@ import requests
 from application.messaging_producer import send_message
 from .validatejwt import Validatejwt
 
+message_body = {
+    "update": 1
+}
+send_message(exchange_name='event_exchange', routing_key='auth.pub_key', message=json.dumps(message_body))
+send_message(exchange_name='event_exchange', routing_key='auth.pub_key2', message=json.dumps(message_body))
+
 # Order Routes #########################################################################################################
 @app.route('/client', methods=['POST'])
 def create_client():
