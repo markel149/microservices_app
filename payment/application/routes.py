@@ -6,7 +6,10 @@ import traceback
 from . import Session
 import requests
 import json
-
+import jwt
+import requests
+from jwt.exceptions import ExpiredSignatureError, DecodeError
+from Crypto.PublicKey.RSA import import_key
 
 s=requests.Session()
 response = s.get("http://auth:8000/client/get_public_key")
@@ -65,7 +68,7 @@ def change_deposit():
     if request.headers['Content-Type'] != 'application/json':
         abort(UnsupportedMediaType.code)
     content = request.json
-    deposit = session.query(Deposit).filter(Deposit.client_id == content['client_id']).one()
+    deposit = session.query(Deposit).filter(Deposit.client_id == content['client_id']).first()
     if not deposit:
         abort(NotFound.code)
     deposit.balance += content['amount']

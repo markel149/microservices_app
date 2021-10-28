@@ -6,9 +6,8 @@ from .models import Deposit
 from flask import request, jsonify, abort
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 from .messaging_producer import send_message
-import requests
 import json
-import time
+
 
 class Consumer:
     def __init__(self, exchange_name, queue_name, routing_key, callback):
@@ -82,5 +81,5 @@ class Consumer:
     def consume_pub_key(ch, method, properties, body):
         message = json.loads(body)
         global auth_public_key
-        routes.auth_public_key = message['public_key']
+        auth_public_key = message['public_key']
         

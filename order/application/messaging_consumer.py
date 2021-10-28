@@ -51,13 +51,7 @@ class Consumer:
         session.commit()
         session.close()
 
-    @staticmethod
-    def consume_pub_key(ch, method, properties, body):
-        message = json.loads(body)
-        global auth_public_key    
-        auth_public_key = message['public_key']
-        session = session()
-        session.close()
+
 
 
     @staticmethod
@@ -75,5 +69,12 @@ class Consumer:
         session.close()
     
 
+    @staticmethod
+    def consume_pub_key(ch, method, properties, body):
+        message = json.loads(body)
+        global auth_public_key    
+        auth_public_key = message['public_key']
+        session = session()
+        session.close()
     
     
