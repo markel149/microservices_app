@@ -90,7 +90,12 @@ services:
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3-management
+    volumes:
+      - ./rabbitmq/config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+      - ./rabbitmq/certs/:/etc/rabbitmq/certs/
     ports:
+      - 5671:5671
+      - 15671:15671
       - 15691:15691
       - 15672:15672
       - 5672:5672
