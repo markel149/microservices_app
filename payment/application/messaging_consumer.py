@@ -7,7 +7,7 @@ from flask import request, jsonify, abort
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 from .messaging_producer import send_message
 import json
-
+import ssl
 
 class Consumer:
     def __init__(self, exchange_name, queue_name, routing_key, callback):
