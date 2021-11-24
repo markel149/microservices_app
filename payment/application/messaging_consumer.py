@@ -26,7 +26,7 @@ class Consumer:
         #conn_params = pika.ConnectionParameters(port=5671,ssl_options=ssl_options)
     
 
-        connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq', ssl_options=ssl_options, port=5672))
+        connection = pika.BlockingConnection(pika.ConnectionParameters(host='10.0.2.115', ssl_options=ssl_options, port=5672))
         channel = connection.channel()
         channel.exchange_declare(exchange=self.exchange_name, exchange_type='topic')
 

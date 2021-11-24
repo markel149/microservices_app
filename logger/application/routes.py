@@ -9,6 +9,7 @@ from application.messaging_producer import send_message
 import requests
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 from Crypto.PublicKey.RSA import import_key
+import json
 
 s=requests.Session()
 response = s.get("http://auth:8000/client/get_public_key")
