@@ -4,12 +4,27 @@ from .models import Log
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
+import jwt
+from application.messaging_producer import send_message
+import requests
+from jwt.exceptions import ExpiredSignatureError, DecodeError
+from Crypto.PublicKey.RSA import import_key
 
+s=requests.Session()
+response = s.get("http://auth:8000/client/get_public_key")
+auth_public_key = json.loads(response.content)['public_key']
+s.close()
 
 
 # Delivery Routes ######################################################################################################
 @app.route('/logger', methods=['GET'])
 def view_logs():
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     logs = session.query(Log).all()
     if not logs:

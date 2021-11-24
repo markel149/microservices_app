@@ -98,7 +98,7 @@ class Consumer:
         message = json.loads(body)
         global auth_public_key    
         auth_public_key = message['public_key']
-        session = session()
+        session = Session()
         session.close()
     
     

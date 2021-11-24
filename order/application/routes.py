@@ -94,6 +94,12 @@ def view_order(order_id):
 
 @app.route('/order/<int:order_id>', methods=['DELETE'])
 def delete_order(order_id):
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     order = session.query(Order).get(order_id)
     if not order:

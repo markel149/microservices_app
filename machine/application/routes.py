@@ -5,7 +5,16 @@ from .machine import Machine
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
+import jwt
+from application.messaging_producer import send_message
+import requests
+from jwt.exceptions import ExpiredSignatureError, DecodeError
+from Crypto.PublicKey.RSA import import_key
 
+s=requests.Session()
+response = s.get("http://auth:8000/client/get_public_key")
+auth_public_key = json.loads(response.content)['public_key']
+s.close()
 my_machine = Machine()
 
 # Piece Routes #########################################################################################################
@@ -13,6 +22,12 @@ my_machine = Machine()
 @app.route('/piece', methods=['GET'])
 @app.route('/pieces', methods=['GET'])
 def view_pieces():
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     order_id = request.args.get('order_id')
     if order_id:
@@ -26,6 +41,12 @@ def view_pieces():
 
 @app.route('/piece/<int:piece_ref>', methods=['GET'])
 def view_piece(piece_ref):
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     piece = session.query(Piece).get(piece_ref)
     if not piece:

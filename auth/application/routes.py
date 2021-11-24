@@ -66,6 +66,12 @@ def create_client():
 @app.route('/client', methods=['GET'])
 @app.route('/clients', methods=['GET'])
 def view_clients():
+    try:
+        decodedJWT = jwt.decode(request.headers['Authorization'].replace("Bearer ", ""), auth_public_key, algorithms=["RS256"])
+    except ExpiredSignatureError as e:
+        return jsonify({"error_message": "Token Expired"})
+    except DecodeError as e:
+        return jsonify({"error_message": "Decode Error"})
     session = Session()
     print("GET All Clients.")
     clients = session.query(Client).all()
