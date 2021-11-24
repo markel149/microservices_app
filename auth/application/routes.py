@@ -95,7 +95,7 @@ def create_jwt():
             'username': user.username,
             'service': False,
             'role': user.role,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
         }
         refresh_token = secrets.token_urlsafe(16)
         user.refresh_token = refresh_token
