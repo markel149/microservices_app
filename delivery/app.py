@@ -5,10 +5,29 @@ import requests
 
 app = create_app()
 
-order_created_consumer = Consumer('event_exchange', 'queue_of_delivery_for_order', 'order.order_created', Consumer.consume_order_created)
-payment_changed_consumer = Consumer('event_exchange', 'queue_of_delivery_for_payment', 'payment.payment_status_changed', Consumer.consume_order_paid)
-pieces_ready_consumer = Consumer('event_exchange', 'queue_of_delivery_for_machine', 'machine.pieces_from_order_created', Consumer.consume_pieces_ready)
+order_created_consumer = Consumer(
+                            'event_exchange',
+                            'queue_of_delivery_for_order',
+                            'order.order_created',
+                            Consumer.consume_order_created)
 
+payment_accepted_consumer = Consumer(
+                            'event_exchange',
+                            'queue_of_delivery_for_payment',
+                            'payment.payment_accepted',
+                            Consumer.consume_payment_accepted)
+
+payment_rejected_consumer = Consumer(
+                            'event_exchange',
+                            'queue_of_delivery_for_payment_rejected',
+                            'payment.payment_rejected',
+                            Consumer.consume_payment_rejected)
+
+order_completed_consumer = Consumer(
+                            'event_exchange',
+                            'queue_of_delivery_for_order_completed',
+                            'order.order_completed',
+                            Consumer.consume_order_completed)
 
 app.app_context().push()
 

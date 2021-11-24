@@ -37,11 +37,13 @@ class Client(BaseModel):
     id = Column(Integer, primary_key=True)
     username = Column(String(256), nullable=False, default="Unknown")
     password = Column(String(256), nullable=False, default="123123")
-    role =  Column(String(256), nullable=False, default="operator")
+    role = Column(String(256), nullable=False, default="operator")
+    refresh_token = Column(String(256), nullable=False, default=" ")
+
 
 @event.listens_for(Client.__table__, 'after_create')
 def create_admin(*args, **kwargs):
     session = Session()
-    session.add(Client(username='admin', password=bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode('utf-8'), role='admin'))
+    session.add(Client(username='admin', password=bcrypt.hashpw('admin'.encode(), bcrypt.gensalt()).decode('utf-8'), role='admin', refresh_token=' '))
     session.commit()
     session.close()

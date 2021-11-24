@@ -7,6 +7,7 @@ import traceback
 from . import Session
 import bcrypt
 import jwt
+import secrets
 from .crypto import rsa_singleton
 import json
 import base64
@@ -41,15 +42,14 @@ def create_client():
     try:
         new_client = Client(
             username=content['username'],
-	        password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
-	#     #password = content['password'],
+            password=bcrypt.hashpw(content['password'].encode(), bcrypt.gensalt()).decode('utf-8'),
+            # password = content['password'],
             role=content['role']
         )
 
         session.add(new_client)
         session.commit()
 
-        
     except KeyError:
         session.rollback()
         abort(BadRequest.code)
@@ -73,6 +73,7 @@ def view_clients():
     session.close()
     return response
 
+
 @app.route('/client/create_jwt', methods=['GET'])
 def create_jwt():
     session = Session()
@@ -94,10 +95,14 @@ def create_jwt():
             'username': user.username,
             'service': False,
             'role': user.role,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
         }
+        refresh_token = secrets.token_urlsafe(16)
+        user.refresh_token = refresh_token
+        session.commit()
         response = {
-            'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8") 
+            'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8"),
+            'refresh_token': refresh_token
         }
      
     except Exception as e:
@@ -108,6 +113,42 @@ def create_jwt():
     
     session.close()
     return response
+
+
+@app.route('/client/refresh_jwt', methods=['GET'])
+def get_refreshed_jwt():
+    session = Session()
+    response = None
+    received_refresh_token = request.headers['Authorization'].replace("Bearer ", "")
+    content = request.json
+
+    try:
+        user = session.query(Client).filter(Client.username == content['username']).one()
+        if not user:
+            abort(NotFound.code)
+        if user.refresh_token == received_refresh_token:
+            payload = {
+                'id': user.id,
+                'username': user.username,
+                'service': False,
+                'role': user.role,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+            }
+            response = {
+                'jwt': jwt.encode(payload, rsa_singleton.get_private_key(), algorithm='RS256').decode("utf-8")
+            }
+        else:
+            abort(BadRequest.code)
+
+    except Exception as e:
+
+        session.rollback()
+        session.close()
+        abort(BadRequest.code)
+
+    session.close()
+    return response
+
 
 @app.route('/client/get_public_key', methods=['GET'])
 def get_public_key():

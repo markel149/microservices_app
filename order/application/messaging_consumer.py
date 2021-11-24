@@ -38,36 +38,54 @@ class Consumer:
         thread.start()
 
     @staticmethod
-    def consume_payment_status(ch, method, properties, body):
+    def consume_payment_accepted(ch, method, properties, body):
         message = json.loads(body)
-        print('Payment status changes for:  ' + str(message['order_id']) + ",Now: " + str(message['payment_status']))
+        print('Payment status changes for order' + str(message['order_id']) + ': ACCEPTED')
 
         session = Session()
         order = session.query(Order).filter(Order.order_id == message['order_id']).one()
         if not order:
             abort(NotFound.code)
-        print("GET Order {}: {}".format(order.order_id, order.client_id))
-        order.status = str(message['payment_status'])
+        order.status = 'PAID'
         session.commit()
         session.close()
-
-
-
 
     @staticmethod
-    def consume_pieces_ready(ch, method, properties, body):
+    def consume_payment_rejected(ch, method, properties, body):
         message = json.loads(body)
-        print(message)
-        #CAMBIOS
+        print('Payment status changes for order' + str(message['order_id']) + ': REJECTED')
+
         session = Session()
         order = session.query(Order).filter(Order.order_id == message['order_id']).one()
         if not order:
             abort(NotFound.code)
-        print("GET Order {}: {}".format(order.order_id, order.client_id))
-        order.status = 'MANUFACTURED'
+        order.status = 'REJECTED'
         session.commit()
         session.close()
-    
+
+    @staticmethod
+    def consume_piece_created(ch, method, properties, body):
+        message = json.loads(body)
+        print('Piece for order' + str(message['order_id']) + ' created')
+        session = Session()
+        order = session.query(Order).filter(Order.order_id == message['order_id']).one()
+        if not order:
+            abort(NotFound.code)
+        order.number_of_pieces_created = order.number_of_pieces_created + 1
+        print('Pieces created: ' + str(order.number_of_pieces_created) + ', Pieces ordered: ' + str(
+            order.number_of_pieces))
+        if order.number_of_pieces_created == order.number_of_pieces:
+            order.status = 'MANUFACTURED'
+            print("All pieces created for order" + str(order.order_id))
+            message_body = {
+                'order_id': order.order_id
+            }
+            send_message(exchange_name='event_exchange', routing_key='order.order_completed',
+                         message=json.dumps(message_body))
+
+        session.commit()
+        session.close()
+
 
     @staticmethod
     def consume_pub_key(ch, method, properties, body):

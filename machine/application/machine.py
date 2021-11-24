@@ -2,7 +2,7 @@ import json
 from random import randint
 from time import sleep
 from collections import deque
-from .models import Piece, PiecesOrdered
+from .models import Piece
 from threading import Thread, Lock, Event
 import sqlalchemy
 from . import Session
@@ -83,17 +83,11 @@ class Machine(Thread):
     def working_piece_to_finished(self):
         self.instance.status = Machine.STATUS_CHANGING_PIECE
         self.working_piece.status = Piece.STATUS_MANUFACTURED
-
-        order_finished = True
-        for piece in self.working_piece.order.pieces:
-            if piece.status != Piece.STATUS_MANUFACTURED:
-                order_finished = False
-        if order_finished:
-            self.working_piece.order.status = PiecesOrdered.STATUS_FINISHED
-            print('order id: '+ str(self.working_piece.order.order_id))
-            message_body = {'order_id': self.working_piece.order.order_id}
-            send_message(exchange_name='event_exchange', routing_key='machine.pieces_from_order_created', message=json.dumps(message_body))
-
+        message_body = {
+            'order_id': self.working_piece.order_id
+        }
+        send_message(exchange_name='event_exchange', routing_key='machine.piece_from_order_created',
+                     message=json.dumps(message_body))
         self.thread_session.commit()
         self.thread_session.flush()
 
@@ -102,9 +96,9 @@ class Machine(Thread):
             self.add_piece_to_queue(piece)
 
     def add_piece_to_queue(self, piece):
-        self.queue.append(piece.ref)
+        self.queue.append(piece.piece_id)
         piece.status = Piece.STATUS_QUEUED
-        print("Adding piece to queue: {}".format(piece.ref))
+        print("Adding piece to queue: {}".format(piece.piece_id))
         self.queue_not_empty_event.set()
 
     def remove_pieces_from_queue(self, pieces):

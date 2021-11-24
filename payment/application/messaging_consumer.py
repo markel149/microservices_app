@@ -43,30 +43,31 @@ class Consumer:
         deposit = session.query(Deposit).filter(Deposit.client_id == message['client_id']).one()
         if not deposit:
             abort(NotFound.code)
-        print("GET Deposit {}: {}".format(deposit.deposit_id, deposit.balance))
+        print('Checking the balance of the ' + str(deposit.client_id) + ': ' + str(deposit.balance))
 
         # Imagine a piece's price is 5
-        status = ''
+        routing_key = ''
         cost = int(message['number_of_pieces']) * 5
         if cost > deposit.balance:
-            status = 'REJECTED'
+            routing_key = 'payment.payment_rejected'
+            print('Not enough money')
         else:
-            status = 'PAID'
+            routing_key = 'payment.payment_accepted'
+            print('')
             deposit.balance = deposit.balance - cost
         session.commit()
         message_body = {
             'order_id': message['order_id'],
             'client_id': message['client_id'],
-            'number_of_pieces': message['number_of_pieces'],
-            'payment_status': status
+            'number_of_pieces': message['number_of_pieces']
         }
-        send_message(exchange_name='event_exchange', routing_key='payment.payment_status_changed', message=json.dumps(message_body))
+        send_message(exchange_name='event_exchange', routing_key=routing_key, message=json.dumps(message_body))
         session.close()
 
     @staticmethod
     def consume_new_client(ch, method, properties, body):
         message = json.loads(body)
-        print('New client created:  ' + str(message['client_id']))
+        print('Creating deposit for client  ' + str(message['order_id']))
 
         session = Session()
         new_deposit = Deposit(
@@ -76,7 +77,7 @@ class Consumer:
         session.add(new_deposit)
         session.commit()
         session.close()
-    
+
     @staticmethod
     def consume_pub_key(ch, method, properties, body):
         message = json.loads(body)

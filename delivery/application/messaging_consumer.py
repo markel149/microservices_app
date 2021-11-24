@@ -46,33 +46,40 @@ class Consumer:
         session.close()
 
     @staticmethod
-    def consume_order_paid(ch, method, properties, body):
+    def consume_payment_accepted(ch, method, properties, body):
         message = json.loads(body)
-        print('Payment status changes for:  ' + str(message['order_id']) + ",Now: " + str(message['payment_status']))
+        print('Payment status changes for order' + str(message['order_id']) + " : ACCEPTED")
 
         session = Session()
         delivery = session.query(Delivery).filter(Delivery.order_id == message['order_id']).one()
         if not delivery:
             abort(NotFound.code)
-        print("GET Delivery {}".format(delivery.order_id))
-        status = ''
-        if str(message['payment_status']) == 'PAID':
-            delivery.status = 'MANUFACTURING'
-        else:
-            delivery.status = 'REJECTED'
+        delivery.status = 'MANUFACTURING'
         session.commit()
         session.close()
 
     @staticmethod
-    def consume_pieces_ready(ch, method, properties, body):
+    def consume_payment_rejected(ch, method, properties, body):
         message = json.loads(body)
-        print('Pieces ready for:  ' + str(message['order_id']))
+        print('Payment status changes for order' + str(message['order_id']) + " : REJECTED")
 
         session = Session()
         delivery = session.query(Delivery).filter(Delivery.order_id == message['order_id']).one()
         if not delivery:
             abort(NotFound.code)
-        print("GET Delivery {}".format(delivery.order_id))
+        delivery.status = 'REJECTED'
+        session.commit()
+        session.close()
+
+    @staticmethod
+    def consume_order_completed(ch, method, properties, body):
+        message = json.loads(body)
+        print('Pieces ready for order' + str(message['order_id']))
+
+        session = Session()
+        delivery = session.query(Delivery).filter(Delivery.order_id == message['order_id']).one()
+        if not delivery:
+            abort(NotFound.code)
         delivery.status = 'READY_FOR_SHIPMENT'
         session.commit()
         session.close()

@@ -2,7 +2,7 @@ import pika
 import json
 import threading
 from . import Session
-from application.models import PiecesOrdered, Piece
+from application.models import Piece
 from application.machine import Machine
 from flask import request, jsonify, abort
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
@@ -35,34 +35,17 @@ class Consumer:
         thread.start()
 
     @staticmethod
-    def consume_new_order(ch, method, properties, body):
-        message = json.loads(body)
-        print('New order created:  ' + str(message['order_id']))
-
-        session = Session()
-        new_order = PiecesOrdered(
-            order_id=message['order_id'],
-            number_of_pieces=message['number_of_pieces']
-        )
-        session.add(new_order)
-        session.commit()
-        session.close()
-
-    @staticmethod
     def consume_order_paid(ch, method, properties, body):
         message = json.loads(body)
         print('New order paid:  ' + str(message['order_id']))
 
         session = Session()
-        pieces_ordered = session.query(PiecesOrdered).filter(PiecesOrdered.order_id == message['order_id']).one()
-        if str(message['payment_status']) == 'REJECTED':
-            pieces_ordered.status = 'REJECTED'
-        else:
-            for i in range(pieces_ordered.number_of_pieces):
-                piece = Piece()
-                piece.order = pieces_ordered
-                session.add(piece)
+        num_pieces_ordered = message['number_of_pieces']
+        for i in range(num_pieces_ordered):
+            piece = Piece(order_id=message['order_id'])
+            session.add(piece)
             session.commit()
-            my_machine.add_pieces_to_queue(pieces_ordered.pieces)
-            session.commit()
+            my_machine.add_piece_to_queue(piece)
+        session.commit()
         session.close()
+
