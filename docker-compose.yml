@@ -111,3 +111,15 @@ services:
     restart: always
     depends_on:
       - rabbitmq
+  consul:
+    container_name: consul
+    image: consul
+    environment:
+      - CONSUL_LOCAL_CONFIG=${CONSUL_LOCAL_CONFIG}
+    volumes:
+      - ./consul/data:/consul/data
+    ports:
+      - ${CONSUL_HTTP_PORT}:${CONSUL_HTTP_PORT}
+      - ${CONSUL_HTTPS_PORT}:${CONSUL_HTTPS_PORT}
+      - ${CONSUL_UDP_PORT}:${CONSUL_UDP_PORT}
+    command: consul agent -server -ui -client=0.0.0.0 -bootstrap-expect=1 -data-dir /consul/data -config-dir /consul/config
