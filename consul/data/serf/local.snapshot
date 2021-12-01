@@ -2,3 +2,6 @@ alive: f6226b0a3e83 172.25.0.2:8301
 event-clock: 1
 alive: consul-server 172.25.0.4:8301
 event-clock: 2
+alive: consul-server 172.25.0.4:8301
+alive: consul-server 172.25.0.8:8301
+event-clock: 3

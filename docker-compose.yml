@@ -118,6 +118,7 @@ services:
       - CONSUL_LOCAL_CONFIG=${CONSUL_LOCAL_CONFIG}
     volumes:
       - ./consul/data:/consul/data
+      - ./consul/config:/consul/config
     ports:
       - ${CONSUL_HTTP_PORT}:${CONSUL_HTTP_PORT}
       - ${CONSUL_HTTPS_PORT}:${CONSUL_HTTPS_PORT}
