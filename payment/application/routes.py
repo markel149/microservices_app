@@ -77,6 +77,10 @@ def change_deposit():
     session.close()
     return response
 
+@app.route('/health', methods=['HEAD', 'GET']) 
+def health_check():
+#abort(BadRequest)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
