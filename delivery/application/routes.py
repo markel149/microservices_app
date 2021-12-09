@@ -4,7 +4,7 @@ from .models import Delivery
 from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, UnsupportedMediaType
 import traceback
 from . import Session
-
+import json
 import jwt
 from application.messaging_producer import send_message
 import requests
@@ -34,6 +34,10 @@ def view_deposit(delivery_id):
     session.close()
     return response
 
+@app.route('/health', methods=['HEAD', 'GET']) 
+def health_check():
+#abort(BadRequest)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)

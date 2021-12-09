@@ -32,33 +32,27 @@ frontend api_gateway
   
 backend be_logger
   balance roundrobin
-  option httpchk HEAD /health HTTP/1.0
-  server server_logger logger:8000 check inter 5s downinter 5s fall 2 rise 3 fastinter 500
+  server server_logger logger:8000 check 
 
 backend be_client
   balance roundrobin
-  option httpchk HEAD /health HTTP/1.0
-  server server_auth auth:8000 check inter 5s downinter 5s fall 2 rise 3 fastinter 500 
+  server server_auth auth:8000 check  
   
 backend be_delivery
   balance roundrobin
-  option httpchk HEAD /health HTTP/1.0
-  server server_delivery delivery:8000 check inter 5s downinter 5s fall 2 rise 3 fastinter 500  
+  server server_delivery delivery:8000 check  
 
 backend be_machine
   balance roundrobin
-  option httpchk HEAD /health HTTP/1.0
-  server server_machine machine:8000 check inter 5s downinter 5s fall 2 rise 3 fastinter 500 
+  server server_machine machine:8000 check  
 
 backend be_order
   balance roundrobin
-  option httpchk HEAD /health HTTP/1.0
-  server server_order order:8000 check inter 5s downinter 5s fall 2 rise 3 fastinter 500
+  server server_order order:8000 check  
 
 backend be_payment
   balance roundrobin
-  option httpchk HEAD /health HTTP/1.0
-  server server_payment payment:8000 check inter 5s downinter 5s fall 2 rise 3 fastinter 500  
+  server server_payment payment:8000 check  
 
 listen stats
   bind :${HA_PROXY_STATS_PORT}

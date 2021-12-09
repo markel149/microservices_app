@@ -16,6 +16,6 @@ gunicorn==19.9.0
 pika~=1.2.0
 
 PyJWT==1.7.1
-
+requests
 pycryptodome
 cryptography

@@ -10,6 +10,7 @@ from application.messaging_producer import send_message
 import requests
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 from Crypto.PublicKey.RSA import import_key
+import json
 
 s=requests.Session()
 response = s.get("http://auth:8000/client/get_public_key")
@@ -67,6 +68,10 @@ def view_machine_status():
     response = {"status": my_machine.status, "working_piece": working_piece, "queue": list(queue)}
     return jsonify(response)
 
+@app.route('/health', methods=['HEAD', 'GET']) 
+def health_check():
+#abort(BadRequest)
+    return "OK"
 
 # Error Handling #######################################################################################################
 @app.errorhandler(UnsupportedMediaType)
