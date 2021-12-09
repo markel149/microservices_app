@@ -10,6 +10,8 @@ from application.messaging_producer import send_message
 import requests
 from jwt.exceptions import ExpiredSignatureError, DecodeError
 from Crypto.PublicKey.RSA import import_key
+from .sagas_orchestrator import get_orchestrator
+from .state import OrderProcess
 
 s=requests.Session()
 response = s.get("http://auth:8000/client/get_public_key")
@@ -41,13 +43,18 @@ def create_order():
         )
         session.add(new_order)
         session.commit()
+        """""
         message_body = {
             'order_id': new_order.order_id,
             'client_id': new_order.client_id,
             'number_of_pieces': new_order.number_of_pieces
         }
         send_message(exchange_name='event_exchange', routing_key='order.order_created', message=json.dumps(message_body))
-        session.commit()
+        """""
+        orchestrator = get_orchestrator()
+        order_process = OrderProcess(new_order.order_id, new_order.client_id, '20500', new_order.number_of_pieces)
+        orchestrator.order_state_list.append(order_process)
+        #session.commit()
     except KeyError:
         session.rollback()
         session.close()

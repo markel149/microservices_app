@@ -6,6 +6,7 @@ from werkzeug.exceptions import NotFound, InternalServerError, BadRequest, Unsup
 from . import Session
 from .models import Delivery
 import ssl
+from .messaging_producer import send_message
 
 class Consumer:
     def __init__(self, exchange_name, queue_name, routing_key, callback):
@@ -37,43 +38,49 @@ class Consumer:
         thread = threading.Thread(target=channel.start_consuming)
         thread.start()
 
-    # CAMBIOS
     @staticmethod
-    def consume_order_created(ch, method, properties, body):
+    def consume_check_inside_BAC(ch, method, properties, body):
         message = json.loads(body)
-        print('New order created:  ' + str(message['order_id']))
+        print('Order requested to check if it is inside BAC:  ' + str(message['order_id']))
 
+        #if message['client_address'][0:2] == '01' or message['client_address'][0:2] == '20' or message['client_address'][0:2] == '48'
         session = Session()
-        new_delivery = Delivery(
-            order_id=int(message['order_id'])
-        )
-        session.add(new_delivery)
-        session.commit()
-        session.close()
+        if message['client_address'] == '20500':
+            new_delivery = Delivery(
+                order_id=int(message['order_id']),
+                status='CORRECT_ADDRESS'
+            )
+            session.add(new_delivery)
+            session.commit()
+            session.close()
+            message_body = {
+                'order_id': message['order_id'],
+                'number_of_pieces': message['number_of_pieces']
+            }
+            send_message('response_exchange', 'delivery.inside_BAC', json.dumps(message_body))
+        else:
+            new_delivery = Delivery(
+                order_id=int(message['order_id']),
+                status='OUTSIDE_BAC'
+            )
+            session.add(new_delivery)
+            session.commit()
+            session.close()
+            message_body = {
+                'order_id': message['order_id']
+            }
+            send_message('response_exchange', 'delivery.outside_BAC', json.dumps(message_body))
 
     @staticmethod
-    def consume_payment_accepted(ch, method, properties, body):
+    def consume_cancel_delivery(ch, method, properties, body):
         message = json.loads(body)
-        print('Payment status changes for order' + str(message['order_id']) + " : ACCEPTED")
+        print('Requested delivery cancel for order' + str(message['order_id']))
 
         session = Session()
         delivery = session.query(Delivery).filter(Delivery.order_id == message['order_id']).one()
         if not delivery:
             abort(NotFound.code)
-        delivery.status = 'MANUFACTURING'
-        session.commit()
-        session.close()
-
-    @staticmethod
-    def consume_payment_rejected(ch, method, properties, body):
-        message = json.loads(body)
-        print('Payment status changes for order' + str(message['order_id']) + " : REJECTED")
-
-        session = Session()
-        delivery = session.query(Delivery).filter(Delivery.order_id == message['order_id']).one()
-        if not delivery:
-            abort(NotFound.code)
-        delivery.status = 'REJECTED'
+        delivery.status = 'CANCELLED_BY_INSUFFICIENT_MONEY'
         session.commit()
         session.close()
 

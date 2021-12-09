@@ -4,17 +4,29 @@ from application.messaging_consumer import Consumer
 
 app = create_app()
 
-payment_accepted_consumer = Consumer(
-                                'event_exchange',
+sufficient_money_consumer = Consumer(
+                                'response_exchange',
                                 'queue_of_order_for_payment',
-                                'payment.payment_accepted',
-                                Consumer.consume_payment_accepted)
+                                'payment.sufficient_money',
+                                Consumer.consume_sufficient_money)
 
-payment_rejected_consumer = Consumer(
-                                'event_exchange',
+insufficient_money_consumer = Consumer(
+                                'response_exchange',
                                 'queue_of_order_for_payment_rejected',
-                                'payment.payment_rejected',
-                                Consumer.consume_payment_rejected)
+                                'payment.insufficient_money',
+                                Consumer.consume_insufficient_money)
+
+outside_BAC_consumer = Consumer(
+                                'response_exchange',
+                                'queue_of_order_for_payment',
+                                'delivery.outside_BAC',
+                                Consumer.consume_outside_BAC)
+
+inside_BAC_consumer = Consumer(
+                                'response_exchange',
+                                'queue_of_order_for_payment_rejected',
+                                'delivery.inside_BAC',
+                                Consumer.consume_inside_BAC)
 
 piece_created_consumer = Consumer(
                                 'event_exchange',

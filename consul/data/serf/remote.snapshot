@@ -2,3 +2,5 @@ alive: f6226b0a3e83.dc1 172.25.0.2:8302
 alive: consul-server.group2-dc 172.25.0.4:8302
 alive: consul-server.group2-dc 172.25.0.4:8302
 alive: consul-server.group2-dc 172.25.0.8:8302
+alive: consul-server.group2-dc 192.168.80.2:8302
+alive: consul-server.group2-dc 192.168.80.2:8302

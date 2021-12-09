@@ -5,23 +5,17 @@ import requests
 
 app = create_app()
 
-order_created_consumer = Consumer(
-                            'event_exchange',
+check_BAC_consumer = Consumer(
+                            'command_exchange',
                             'queue_of_delivery_for_order',
-                            'order.order_created',
-                            Consumer.consume_order_created)
+                            'delivery.check_BAC',
+                            Consumer.consume_check_inside_BAC)
 
-payment_accepted_consumer = Consumer(
-                            'event_exchange',
-                            'queue_of_delivery_for_payment',
-                            'payment.payment_accepted',
-                            Consumer.consume_payment_accepted)
-
-payment_rejected_consumer = Consumer(
-                            'event_exchange',
-                            'queue_of_delivery_for_payment_rejected',
-                            'payment.payment_rejected',
-                            Consumer.consume_payment_rejected)
+cancel_delivery_consumer = Consumer(
+                            'command_exchange',
+                            'queue_of_delivery_for_order2',
+                            'delivery.cancel_delivery',
+                            Consumer.consume_cancel_delivery)
 
 order_completed_consumer = Consumer(
                             'event_exchange',
