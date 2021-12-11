@@ -11,7 +11,7 @@ import requests
 import time
 import logging
 import ssl
-from sagas_orchestrator import get_orchestrator
+from .sagas_orchestrator import get_orchestrator
 
 class Consumer:
     def __init__(self, exchange_name, queue_name, routing_key, callback):

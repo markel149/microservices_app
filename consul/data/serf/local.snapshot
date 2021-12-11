@@ -24,3 +24,19 @@ event-clock: 8
 alive: consul-server 172.24.0.2:8301
 event-clock: 9
 >>>>>>> defb4655b5403d5f717570249c0059a783008a9c
+alive: consul-server 192.168.80.2:8301
+event-clock: 1
+alive: consul-server 192.168.80.2:8301
+event-clock: 2
+alive: consul-server 192.168.80.2:8301
+event-clock: 3
+alive: consul-server 192.168.96.3:8301
+event-clock: 4
+alive: consul-server 192.168.96.2:8301
+event-clock: 5
+alive: consul-server 192.168.112.2:8301
+event-clock: 6
+alive: consul-server 192.168.128.2:8301
+event-clock: 7
+alive: consul-server 192.168.128.2:8301
+event-clock: 8
