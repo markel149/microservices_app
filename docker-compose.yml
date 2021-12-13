@@ -81,6 +81,7 @@ services:
       HA_PROXY_STATS_PORT: '${HA_PROXY_STATS_PORT}'
       HA_PROXY_PORT: '${HA_PROXY_PORT}'
       HA_PROXY_TLS_PORT: '${HA_PROXY_TLS_PORT}'
+      CONSUL_HOST: '${CONSUL_HOST}'
     restart: always
     depends_on:
       - order
