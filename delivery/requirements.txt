@@ -20,3 +20,11 @@ PyJWT==1.7.1
 
 pycryptodome
 cryptography
+
+
+six==1.13.0
+
+
+# Consul library
+consulate==0.6.0
+flask-consulate==0.2.0

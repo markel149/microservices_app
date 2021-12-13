@@ -2,6 +2,7 @@ from application import create_app
 from application.messaging_consumer import Consumer
 import json
 import requests
+from application.BLConsul import BLConsul
 
 app = create_app()
 
@@ -31,6 +32,8 @@ order_completed_consumer = Consumer(
 
 app.app_context().push()
 
+bl_consul = BLConsul.get_instance()
+bl_consul.init_and_register(app)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000)

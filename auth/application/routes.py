@@ -15,7 +15,10 @@ import datetime
 import requests
 from application.messaging_producer import send_message
 from jwt.exceptions import ExpiredSignatureError, DecodeError
- 
+from .BLConsul import BLConsul
+
+bl_consul = BLConsul.get_instance()
+
 message_body = {
     "public_key": rsa_singleton.get_public_key().decode('utf-8')
 }

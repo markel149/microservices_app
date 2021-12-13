@@ -11,10 +11,19 @@ services:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_ORDER}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'order'
+      SERVICE_ID: 'order_id'
+      CONSUL_HOST: '${CONSUL_HOST}'
+      IP: '${ORDER_IP}'
+      PORT: 8000
     restart: always
     depends_on:
       - rabbitmq
       - auth
+    networks:
+      service_discovery_network:
+        ipv4_address: '${ORDER_IP}'
+
   auth:
     container_name: auth
     build: ./auth
@@ -24,9 +33,18 @@ services:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_CLIENT}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'client'
+      SERVICE_ID: 'auth_id'
+      CONSUL_HOST: '${CONSUL_HOST}'
+      IP: '${AUTH_IP}'
+      PORT: 8000
     depends_on:
       - rabbitmq
     restart: always
+    networks:
+      service_discovery_network:
+        ipv4_address: '${AUTH_IP}'
+
   payment:
     container_name: payment
     build: ./payment
@@ -36,10 +54,19 @@ services:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_PAYMENT}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'payment'
+      SERVICE_ID: 'payment_id'
+      CONSUL_HOST: '${CONSUL_HOST}'
+      IP: '${PAYMENT_IP}'
+      PORT: 8000
     restart: always
     depends_on:
       - rabbitmq
       - auth
+    networks:
+      service_discovery_network:
+        ipv4_address: '${PAYMENT_IP}'
+
   haproxy:
     container_name: haproxy
     image: haproxy:latest
@@ -63,6 +90,9 @@ services:
       - machine
       - logger
       - auth
+    networks:
+      service_discovery_network:
+
   machine:
     container_name: machine
     build: ./machine
@@ -72,9 +102,18 @@ services:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_MACHINE}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'machine'
+      SERVICE_ID: 'machine_id'
+      CONSUL_HOST: '${CONSUL_HOST}'
+      IP: '${MACHINE_IP}'
+      PORT: 8000
     restart: always
     depends_on:
       - rabbitmq
+    networks:
+      service_discovery_network:
+        ipv4_address: '${MACHINE_IP}'
+
   delivery:
     container_name: delivery
     build: ./delivery
@@ -84,9 +123,18 @@ services:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_DELIVERY}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'delivery'
+      SERVICE_ID: 'delivery_id'
+      CONSUL_HOST: '${CONSUL_HOST}'
+      IP: '${DELIVERY_IP}'
+      PORT: 8000
     restart: always
     depends_on:
       - rabbitmq
+    networks:
+      service_discovery_network:
+        ipv4_address: '${DELIVERY_IP}'
+
   rabbitmq:
     container_name: rabbitmq
     image: rabbitmq:3-management
@@ -99,6 +147,9 @@ services:
       - 15691:15691
       - 15672:15672
       - 5672:5672
+    networks:
+      service_discovery_network:
+
   logger:
     container_name: logger
     build: ./logger
@@ -108,9 +159,18 @@ services:
       GUNICORN_PORT: '${GUNICORN_PORT}'
       SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_LOGGER}'
       SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
+      SERVICE_NAME: 'logger'
+      SERVICE_ID: 'logger_id'
+      CONSUL_HOST: '${CONSUL_HOST}'
+      IP: '${LOGGER_IP}'
+      PORT: 8000
     restart: always
     depends_on:
       - rabbitmq
+    networks:
+      service_discovery_network:
+        ipv4_address: '${LOGGER_IP}'
+
   consul:
     container_name: consul
     image: consul
@@ -124,3 +184,14 @@ services:
       - ${CONSUL_HTTPS_PORT}:${CONSUL_HTTPS_PORT}
       - ${CONSUL_UDP_PORT}:${CONSUL_UDP_PORT}
     command: consul agent -server -ui -client=0.0.0.0 -bootstrap-expect=1 -data-dir /consul/data -config-dir /consul/config
+    networks:
+      service_discovery_network:
+        ipv4_address: '${CONSUL_HOST}'
+
+networks:
+  service_discovery_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: '${NETWORK_SUBNET}'
