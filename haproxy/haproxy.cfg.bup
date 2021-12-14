@@ -1,0 +1,63 @@
+global
+  maxconn 2000
+  daemon
+
+defaults
+  log     global
+  mode    http
+  option  httplog
+  option  dontlognull
+  retries 3
+  timeout connect 5000
+  timeout client  50000
+  timeout server  50000
+  
+frontend api_gateway
+  bind *:${HA_PROXY_PORT}
+  bind *:${HA_PROXY_TLS_PORT} ssl crt /usr/local/etc/haproxy/aas.crt
+
+  acl PATH_client path_beg -i beg /client /clients 
+  acl PATH_delivery path_beg -i beg /delivery
+  acl PATH_machine path_beg -i beg /machine
+  acl PATH_order path_beg -i beg /order /orders
+  acl PATH_payment path_beg -i beg /payment /create_deposit
+  acl PATH_logger path_beg -i beg /logger 
+
+  use_backend be_client if PATH_client
+  use_backend be_delivery if PATH_delivery
+  use_backend be_machine if PATH_machine
+  use_backend be_order if PATH_order
+  use_backend be_payment if PATH_payment
+  use_backend be_logger if PATH_logger
+  
+backend be_logger
+  balance roundrobin
+  server server_logger logger:8000 check 
+
+backend be_client
+  balance roundrobin
+  server server_auth auth:8000 check  
+  
+backend be_delivery
+  balance roundrobin
+  server server_delivery delivery:8000 check  
+
+backend be_machine
+  balance roundrobin
+  server server_machine machine:8000 check  
+
+backend be_order
+  balance roundrobin
+  server server_order order:8000 check  
+
+backend be_payment
+  balance roundrobin
+  server server_payment payment:8000 check  
+
+listen stats
+  bind :${HA_PROXY_STATS_PORT}
+  stats enable
+  stats uri /
+  stats hide-version
+  stats auth admin:admin
+

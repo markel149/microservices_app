@@ -1,0 +1,1 @@
+{"datacenter":"group2-dc","log_level":"INFO","node_name":"consul-server","server":true,"http_config":{"response_headers":{"Access-Control-Allow-Origin":"*"}}}
