@@ -1,8 +1,0 @@
-version: '3'
-services:  
-  consul:
-    container_name: consul
-    image: consul
-    environment:
-    volumes:
-    ports:
