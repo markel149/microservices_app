@@ -62,3 +62,13 @@ alive: consul-server 192.168.7.201:8301
 event-clock: 30
 alive: consul-server 192.168.7.201:8301
 event-clock: 31
+alive: consul-server 192.168.7.201:8301
+event-clock: 1
+alive: consul-server 192.168.7.201:8301
+event-clock: 2
+alive: consul-server 192.168.7.201:8301
+event-clock: 3
+alive: consul-server 192.168.7.201:8301
+event-clock: 4
+alive: consul-server 192.168.7.201:8301
+event-clock: 5

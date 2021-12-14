@@ -33,5 +33,6 @@ class Delivery(BaseModel):
     __tablename__ = "delivery"
     delivery_id = Column(Integer, primary_key=True)
     order_id = Column(Integer, nullable=False)
+    client_address = Column(String(256), nullable=False)
     status = Column(String(256), nullable=False, default="WAITING_FOR_PAYMENT")
 

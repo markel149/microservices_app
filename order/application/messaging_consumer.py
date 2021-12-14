@@ -11,6 +11,9 @@ import requests
 import time
 import logging
 import ssl
+from .messaging_producer import send_message
+from .sagas_orchestrator import get_orchestrator
+
 
 class Consumer:
     def __init__(self, exchange_name, queue_name, routing_key, callback):
@@ -44,30 +47,32 @@ class Consumer:
         thread.start()
 
     @staticmethod
-    def consume_payment_accepted(ch, method, properties, body):
+    def consume_inside_BAC(ch, method, properties, body):
         message = json.loads(body)
-        print('Payment status changes for order' + str(message['order_id']) + ': ACCEPTED')
-
-        session = Session()
-        order = session.query(Order).filter(Order.order_id == message['order_id']).one()
-        if not order:
-            abort(NotFound.code)
-        order.status = 'PAID'
-        session.commit()
-        session.close()
+        print('Client address checked for order' + str(message['order_id']) + ': ACCEPTED')
+        orchestrator = get_orchestrator()
+        orchestrator.manage_message('address_inside_BAC', message)
 
     @staticmethod
-    def consume_payment_rejected(ch, method, properties, body):
+    def consume_outside_BAC(ch, method, properties, body):
         message = json.loads(body)
-        print('Payment status changes for order' + str(message['order_id']) + ': REJECTED')
+        print('Client address checked for order' + str(message['order_id']) + ': REJECTED')
+        orchestrator = get_orchestrator()
+        orchestrator.manage_message('address_outside_BAC', message)
 
-        session = Session()
-        order = session.query(Order).filter(Order.order_id == message['order_id']).one()
-        if not order:
-            abort(NotFound.code)
-        order.status = 'REJECTED'
-        session.commit()
-        session.close()
+    @staticmethod
+    def consume_sufficient_money(ch, method, properties, body):
+        message = json.loads(body)
+        print('Payment checked for order' + str(message['order_id']) + ': ACCEPTED')
+        orchestrator = get_orchestrator()
+        orchestrator.manage_message('sufficient_money', message)
+
+    @staticmethod
+    def consume_insufficient_money(ch, method, properties, body):
+        message = json.loads(body)
+        print('Payment checked for order' + str(message['order_id']) + ': REJECTED')
+        orchestrator = get_orchestrator()
+        orchestrator.manage_message('insufficient_money', message)
 
     @staticmethod
     def consume_piece_created(ch, method, properties, body):

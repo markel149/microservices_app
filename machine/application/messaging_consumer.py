@@ -41,7 +41,7 @@ class Consumer:
         thread.start()
 
     @staticmethod
-    def consume_order_paid(ch, method, properties, body):
+    def consume_order_ready(ch, method, properties, body):
         message = json.loads(body)
         print('New order paid:  ' + str(message['order_id']))
 

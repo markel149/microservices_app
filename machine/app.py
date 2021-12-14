@@ -6,9 +6,9 @@ app = create_app()
 
 order_paid_consumer = Consumer(
                             'event_exchange',
-                            'queue_of_machine_for_payment',
-                            'payment.payment_accepted',
-                            Consumer.consume_order_paid)
+                            'queue_of_machine_for_order',
+                            'order.order_request_completed',
+                            Consumer.consume_order_ready)
 
 app.app_context().push()
 

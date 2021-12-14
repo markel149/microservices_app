@@ -41,9 +41,9 @@ class Consumer:
         thread.start()
 
     @staticmethod
-    def consume_new_order(ch, method, properties, body):
+    def consume_check_balance(ch, method, properties, body):
         message = json.loads(body)
-        print('New order created:  ' + str(message['order_id']))
+        print('Requested to check the balance of client' + str(message['client_id']))
 
         session = Session()
         deposit = session.query(Deposit).filter(Deposit.client_id == message['client_id']).one()
@@ -55,11 +55,11 @@ class Consumer:
         routing_key = ''
         cost = int(message['number_of_pieces']) * 5
         if cost > deposit.balance:
-            routing_key = 'payment.payment_rejected'
+            routing_key = 'payment.insufficient_money'
             print('Not enough money')
         else:
-            routing_key = 'payment.payment_accepted'
-            print('')
+            routing_key = 'payment.sufficient_money'
+            print('Sufficient money')
             deposit.balance = deposit.balance - cost
         session.commit()
         message_body = {
@@ -67,7 +67,7 @@ class Consumer:
             'client_id': message['client_id'],
             'number_of_pieces': message['number_of_pieces']
         }
-        send_message(exchange_name='event_exchange', routing_key=routing_key, message=json.dumps(message_body))
+        send_message(exchange_name='response_exchange', routing_key=routing_key, message=json.dumps(message_body))
         session.close()
 
     @staticmethod
