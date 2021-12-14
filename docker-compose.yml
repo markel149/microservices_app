@@ -29,7 +29,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   auth:
     container_name: auth
@@ -57,7 +57,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   payment:
     container_name: payment
@@ -86,7 +86,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   haproxy:
     container_name: haproxy
@@ -120,7 +120,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   machine:
     container_name: machine
@@ -148,7 +148,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   delivery:
     container_name: delivery
@@ -176,7 +176,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   rabbitmq:
     container_name: rabbitmq
@@ -199,7 +199,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   logger:
     container_name: logger
@@ -227,7 +227,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   consul:
     container_name: consul
@@ -252,7 +252,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   elastic:
     container_name: elastic
@@ -284,7 +284,7 @@ services:
       driver: fluentd
       options:
         fluentd-address: localhost:${FLUENTD_PORT}
-        tag: '{{.Name}}'
+        tag: 'application.{{.Name}}'
 
   fluentd:
     container_name: fluentd
