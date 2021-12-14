@@ -20,9 +20,16 @@ services:
     depends_on:
       - rabbitmq
       - auth
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
         ipv4_address: '${ORDER_IP}'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   auth:
     container_name: auth
@@ -40,10 +47,17 @@ services:
       PORT: 8000
     depends_on:
       - rabbitmq
+      - fluentd
+      - elastic
     restart: always
     networks:
       service_discovery_network:
         ipv4_address: '${AUTH_IP}'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   payment:
     container_name: payment
@@ -63,9 +77,16 @@ services:
     depends_on:
       - rabbitmq
       - auth
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
         ipv4_address: '${PAYMENT_IP}'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   haproxy:
     container_name: haproxy
@@ -91,8 +112,15 @@ services:
       - machine
       - logger
       - auth
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   machine:
     container_name: machine
@@ -111,9 +139,16 @@ services:
     restart: always
     depends_on:
       - rabbitmq
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
         ipv4_address: '${MACHINE_IP}'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   delivery:
     container_name: delivery
@@ -132,9 +167,16 @@ services:
     restart: always
     depends_on:
       - rabbitmq
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
         ipv4_address: '${DELIVERY_IP}'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   rabbitmq:
     container_name: rabbitmq
@@ -148,8 +190,16 @@ services:
       - 15691:15691
       - 15672:15672
       - 5672:5672
+    depends_on:  
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   logger:
     container_name: logger
@@ -168,9 +218,16 @@ services:
     restart: always
     depends_on:
       - rabbitmq
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
         ipv4_address: '${LOGGER_IP}'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
 
   consul:
     container_name: consul
@@ -183,11 +240,63 @@ services:
     ports:
       - ${CONSUL_HTTP_PORT}:${CONSUL_HTTP_PORT}
       - ${CONSUL_HTTPS_PORT}:${CONSUL_HTTPS_PORT}
-      - ${CONSUL_UDP_PORT}:${CONSUL_UDP_PORT}
+      - ${CONSUL_UDP_PORT}:${CONSUL_UDP_PORT}/udp
     command: consul agent -server -ui -client=0.0.0.0 -bootstrap-expect=1 -data-dir /consul/data -config-dir /consul/config
+    depends_on:
+      - fluentd
+      - elastic
     networks:
       service_discovery_network:
         ipv4_address: '${CONSUL_HOST}'
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
+
+  elastic:
+    container_name: elastic
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ES_VERSION}
+    ports:
+      - ${ES_HTTP_PORT}:${ES_HTTP_PORT}
+      - ${ES_TRANSPORT_PORT}:${ES_TRANSPORT_PORT}
+    volumes:
+      - ./elastic/data:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+    networks:
+      service_discovery_network:
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:${KIBANA_VERSION}
+    ports:
+      - ${KIBANA_PORT}:${KIBANA_PORT}
+    environment:
+      - network.host=0.0.0.0
+      - ELASTICSEARCH_HOSTS=http://elastic:${ES_HTTP_PORT}
+    depends_on:
+      - elastic
+      - fluentd
+    networks:
+      service_discovery_network:
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: '{{.Name}}'
+
+  fluentd:
+    container_name: fluentd
+    build: ./fluentd
+    ports:
+      - ${FLUENTD_PORT}:${FLUENTD_PORT}
+    volumes:
+      - ./fluentd/:/fluentd/etc/
+    depends_on:
+      - elastic
+    networks:
+      service_discovery_network:
 
 networks:
   service_discovery_network:
