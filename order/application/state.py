@@ -23,6 +23,7 @@ class OrderProcess(object):
                      message=json.dumps(message_body))
 
         session = Session()
+        session.expunge_all()
         order = session.query(Order).filter(Order.order_id == order_id).one()
         if not order:
             abort(NotFound.code)
@@ -43,6 +44,7 @@ class OrderProcess(object):
                      message=json.dumps(message_body))
 
         session = Session()
+        session.expunge_all()
         order = session.query(Order).filter(Order.order_id == int(values['order_id'])).one()
         if not order:
             abort(NotFound.code)

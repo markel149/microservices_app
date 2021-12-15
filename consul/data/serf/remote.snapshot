@@ -47,3 +47,5 @@ alive: consul-server.group2-dc 192.168.7.201:8302
 alive: consul-server.group2-dc 192.168.7.201:8302
 alive: consul-server.group2-dc 192.168.7.201:8302
 alive: consul-server.group2-dc 192.168.7.201:8302
+alive: consul-server.group2-dc 192.168.7.201:8302
+alive: consul-server.group2-dc 192.168.7.201:8302
