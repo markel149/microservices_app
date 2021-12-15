@@ -62,7 +62,7 @@ class Consumer:
                 'client_id': message['client_id']
             }
             print('Inside')
-            send_message('response_exchange', 'delivery.inside_BAC', json.dumps(message_body))
+            send_message(str(message['response_exchange']), 'delivery.inside_BAC', json.dumps(message_body))
         else:
             new_delivery = Delivery(
                 order_id=int(message['order_id']),
@@ -76,7 +76,7 @@ class Consumer:
                 'order_id': message['order_id']
             }
             print('Outside')
-            send_message('response_exchange', 'delivery.outside_BAC', json.dumps(message_body))
+            send_message(str(message['response_exchange']), 'delivery.outside_BAC', json.dumps(message_body))
 
     @staticmethod
     def consume_cancel_delivery(ch, method, properties, body):

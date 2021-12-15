@@ -67,7 +67,7 @@ class Consumer:
             'client_id': message['client_id'],
             'number_of_pieces': message['number_of_pieces']
         }
-        send_message(exchange_name='response_exchange', routing_key=routing_key, message=json.dumps(message_body))
+        send_message(exchange_name=str(message['response_exchange']), routing_key=routing_key, message=json.dumps(message_body))
         session.close()
 
     @staticmethod

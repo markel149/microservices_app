@@ -22,6 +22,14 @@ class OrderProcess(object):
                      routing_key='order.state_change',
                      message=json.dumps(message_body))
 
+        session = Session()
+        order = session.query(Order).filter(Order.order_id == order_id).one()
+        if not order:
+            abort(NotFound.code)
+        order.status = str(self.state.__str__())
+        session.commit()
+        session.close()
+
     def on_event(self, event, values):
         self.state = self.state.on_event(event, values)
         print('State change to: ' + str(self.state.__str__()))
@@ -33,6 +41,14 @@ class OrderProcess(object):
         send_message(exchange_name='sagas_exchange',
                      routing_key='order.state_change',
                      message=json.dumps(message_body))
+
+        session = Session()
+        order = session.query(Order).filter(Order.order_id == int(values['order_id'])).one()
+        if not order:
+            abort(NotFound.code)
+        order.status = str(self.state.__str__())
+        session.commit()
+        session.close()
 
 
 class State(object):
@@ -54,7 +70,8 @@ class CheckingAddressState(State):
             'order_id': order_id,
             'client_id': client_id,
             'client_address': client_address,
-            'number_of_pieces': number_of_pieces
+            'number_of_pieces': number_of_pieces,
+            'response_exchange': 'response_exchange'
         }
         send_message(exchange_name='command_exchange',
                      routing_key='delivery.check_BAC',
@@ -65,7 +82,8 @@ class CheckingAddressState(State):
             message_body = {
                 'order_id': values['order_id'],
                 'number_of_pieces': values['number_of_pieces'],
-                'client_id': values['client_id']
+                'client_id': values['client_id'],
+                'response_exchange': 'response_exchange'
             }
             send_message(exchange_name='command_exchange',
                          routing_key='payment.check_balance',
