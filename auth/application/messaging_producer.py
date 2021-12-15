@@ -4,7 +4,7 @@ import ssl
 def send_message(exchange_name, routing_key, message):
     # Define ssl context 
     context = ssl.create_default_context(cafile="/app/application/certs/ca_certificate.pem")
-    context.load_cert_chain("/app/application/certs/client_certificate.pem","/app/application/certs/client_key.pem", password="bunnies")
+    context.load_cert_chain("/app/application/certs/client_certificate.pem","/app/application/certs/client_key.pem")
     ssl_options = pika.SSLOptions(context, "rabbitmq")
     #conn_params = pika.ConnectionParameters(port=5671,ssl_options=ssl_options)
     

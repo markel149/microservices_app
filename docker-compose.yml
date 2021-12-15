@@ -191,15 +191,15 @@ services:
       - 15672:15672
       - 5672:5672
     depends_on:  
-      - fluentd
+      # - fluentd
       - elastic
     networks:
       service_discovery_network:
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:${FLUENTD_PORT}
-        tag: 'application.{{.Name}}'
+    # logging:
+    #   driver: fluentd
+    #   options:
+    #     fluentd-address: localhost:${FLUENTD_PORT}
+    #     tag: 'application.{{.Name}}'
 
   logger:
     container_name: logger
