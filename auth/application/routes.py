@@ -25,6 +25,8 @@ message_body = {
 send_message(exchange_name='event_exchange', routing_key='auth.pub_key', message=json.dumps(message_body))
 send_message(exchange_name='event_exchange', routing_key='auth.pub_key2', message=json.dumps(message_body))
 
+auth_public_key = rsa_singleton.get_public_key().decode('utf-8')
+
 # Order Routes #########################################################################################################
 @app.route('/client', methods=['POST'])
 def create_client():
