@@ -14,9 +14,25 @@ class OrderProcess(object):
         self.number_of_pieces = number_of_pieces
         self.state = CheckingAddressState(order_id, client_id, client_address, number_of_pieces)
 
+        message_body = {
+            'order_id': order_id,
+            'status': str(self.state.__str__())
+        }
+        send_message(exchange_name='sagas_exchange',
+                     routing_key='order.state_change',
+                     message=json.dumps(message_body))
+
     def on_event(self, event, values):
         self.state = self.state.on_event(event, values)
         print('State change to: ' + str(self.state.__str__()))
+
+        message_body = {
+            'order_id': values['order_id'],
+            'status': str(self.state.__str__())
+        }
+        send_message(exchange_name='sagas_exchange',
+                     routing_key='order.state_change',
+                     message=json.dumps(message_body))
 
 
 class State(object):
