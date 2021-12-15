@@ -3,6 +3,28 @@ version: '3.1'
 # Solo hay que dejar los puertos expuestos en haproxy
 services:
 
+  logstash:
+    container_name: logstash
+    image: docker.elastic.co/logstash/logstash:7.16.1
+    volumes:
+      - ./logstash/config/rabbit.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/certs:/usr/share/logstash/certs
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+    networks:
+      service_discovery_network:
+    restart: always
+    depends_on:
+      - elastic
+      - fluentd
+      - rabbitmq
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:${FLUENTD_PORT}
+        tag: 'application.{{.Name}}'
+    links:
+      - "elastic:elasticsearch"
+
   order:
     container_name: order
     build: ./order
