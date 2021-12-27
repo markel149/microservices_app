@@ -1,0 +1,13 @@
+.idea
+auth/__pycache__
+auth/application/__pycache__
+delivery/__pycache__
+delivery/application/__pycache__
+machine/__pycache__
+machine/application/__pycache__
+order/__pycache__
+order/application/__pycache__
+payment/__pycache__
+payment/application/__pycache__
+consul/data
+elastic/data
