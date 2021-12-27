@@ -1,4 +1,5 @@
 .idea
+.DS_Store
 auth/__pycache__
 auth/application/__pycache__
 delivery/__pycache__

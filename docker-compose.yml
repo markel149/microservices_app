@@ -224,34 +224,6 @@ services:
         fluentd-address: localhost:${FLUENTD_PORT}
         tag: 'application.{{.Name}}'
 
-  logger:
-    container_name: logger
-    build: ./logger
-    volumes:
-      - ./logger:/app
-    environment:
-      GUNICORN_PORT: '${GUNICORN_PORT}'
-      SQLALCHEMY_DATABASE_URI: '${SQLALCHEMY_SQLITE_DATABASE_URI_LOGGER}'
-      SQLALCHEMY_TRACK_MODIFICATIONS: '${SQLALCHEMY_TRACK_MODIFICATIONS}'
-      SERVICE_NAME: 'logger'
-      SERVICE_ID: 'logger_id'
-      CONSUL_HOST: '${CONSUL_HOST}'
-      IP: '${LOGGER_IP}'
-      PORT: 8000
-    restart: always
-    depends_on:
-      - rabbitmq
-      - fluentd
-      - elastic
-    networks:
-      service_discovery_network:
-        ipv4_address: '${LOGGER_IP}'
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:${FLUENTD_PORT}
-        tag: 'application.{{.Name}}'
-
   consul:
     container_name: consul
     image: consul
